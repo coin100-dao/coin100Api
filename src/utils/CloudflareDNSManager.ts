@@ -10,24 +10,26 @@ export class CloudflareDNSManager {
     private readonly domain: string;
 
     constructor() {
-        if (!process.env.CLOUDFLARE_API_TOKEN) {
-            throw new Error('CLOUDFLARE_API_TOKEN is required');
+        if (!process.env.CLOUDFLARE_API_KEY || !process.env.CLOUDFLARE_USER_EMAIL) {
+            throw new Error('CLOUDFLARE_API_KEY and CLOUDFLARE_USER_EMAIL are required');
         }
 
         this.client = new Cloudflare({
-            token: process.env.CLOUDFLARE_API_TOKEN
+            email: process.env.CLOUDFLARE_USER_EMAIL,
+            key: process.env.CLOUDFLARE_API_KEY
         });
         
         this.domain = 'coin100.link';
-        this.zoneId = process.env.CLOUDFLARE_ZONE_ID || '';
+        this.zoneId = process.env.CLOUDFLARE_ACCOUNT_ID || '';
     }
 
     async getCurrentInstanceIP(): Promise<string> {
         try {
-            const response = await axios.get('http://169.254.169.254/latest/meta-data/public-ipv4');
-            return response.data;
+            // Get the public IP of the current instance
+            const response = await axios.get('https://api.ipify.org?format=json');
+            return response.data.ip;
         } catch (error) {
-            throw new Error('Failed to fetch EC2 instance IP');
+            throw new Error('Failed to fetch current instance IP');
         }
     }
 
