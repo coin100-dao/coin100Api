@@ -3,7 +3,7 @@ name: Deploy Coin100 API to EC2
 on:
   push:
     branches:
-      - main  # Change to your default branch if different
+      - master
 
 jobs:
   deploy:
