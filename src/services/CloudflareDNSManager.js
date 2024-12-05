@@ -1,15 +1,21 @@
 // src/services/CloudflareDNSManager.js
 import axios from 'axios';
 import { config } from 'dotenv';
+import { Cloudflare } from 'cloudflare';
 
 config();
 
 export class CloudflareDNSManager {
     constructor(domain) {
         this.apiKey = process.env.CLOUDFLARE_API_KEY;
+        this.token = process.env.CLOUDFLARE_API_TOKEN;
         this.apiEmail = process.env.CLOUDFLARE_EMAIL;
         this.zoneId = process.env.CLOUDFLARE_ZONE_ID;
+        this.AccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
         this.domain = domain;
+        this.cf = new Cloudflare({
+            token: this.token
+        });
     }
 
     async updateDNSRecord() {
@@ -39,18 +45,8 @@ export class CloudflareDNSManager {
 
     async getDNSRecord() {
         try {
-            const response = await axios.get(
-                `https://api.cloudflare.com/client/v4/zones/${this.zoneId}/dns_records`,
-                {
-                    headers: {
-                        'X-Auth-Email': this.apiEmail,
-                        'X-Auth-Key': this.apiKey,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            console.log(response);
-            const records = response.data.result;
+            const response = await this.cf.dnsRecords.browse(this.zoneId);
+            const records = response.result;
             return records.find(record => record.name === this.domain);
         } catch (error) {
             throw new Error(`Failed to fetch DNS record: ${error.message}`);
@@ -59,22 +55,12 @@ export class CloudflareDNSManager {
 
     async updateRecord(recordId, newIp) {
         try {
-            await axios.put(
-                `https://api.cloudflare.com/client/v4/zones/${this.zoneId}/dns_records/${recordId}`,
-                {
-                    type: 'A',
-                    name: this.domain,
-                    content: newIp,
-                    proxied: true,
-                },
-                {
-                    headers: {
-                        'X-Auth-Email': this.apiEmail,
-                        'X-Auth-Key': this.apiKey,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
+            await this.cf.dnsRecords.edit(this.zoneId, recordId, {
+                type: 'A',
+                name: this.domain,
+                content: newIp,
+                proxied: true
+            });
         } catch (error) {
             throw new Error(`Failed to update DNS record: ${error.message}`);
         }
