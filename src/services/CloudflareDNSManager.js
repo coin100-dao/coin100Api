@@ -49,7 +49,7 @@ export class CloudflareDNSManager {
                     },
                 }
             );
-
+            console.log(response);
             const records = response.data.result;
             return records.find(record => record.name === this.domain);
         } catch (error) {
