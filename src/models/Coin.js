@@ -1,6 +1,6 @@
 // src/models/Coin.js
-import { DataTypes } from 'sequelize';
-import databaseManager from '../services/DatabaseManager.js';
+const { DataTypes } = require('sequelize');
+const databaseManager = require('../services/DatabaseManager');
 
 const Coin = databaseManager.sequelize.define('Coin', {
     id: {
@@ -108,4 +108,4 @@ const Coin = databaseManager.sequelize.define('Coin', {
     timestamps: true
 });
 
-export default Coin;
+module.exports = Coin;

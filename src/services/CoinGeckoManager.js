@@ -1,6 +1,6 @@
 // src/services/CoinGeckoManager.js
-import axios from 'axios';
-import { config } from 'dotenv';
+const axios = require('axios');
+const { config } = require('dotenv');
 
 config();
 
@@ -33,4 +33,4 @@ class CoinGeckoManager {
     }
 }
 
-export default new CoinGeckoManager();
+module.exports = new CoinGeckoManager();

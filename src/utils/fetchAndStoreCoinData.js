@@ -1,6 +1,6 @@
 // src/utils/fetchAndStoreCoinData.js
-import CoinGeckoManager from '../services/CoinGeckoManager.js';
-import Coin from '../models/Coin.js';
+const CoinGeckoManager = require('../services/CoinGeckoManager.js');
+const Coin = require('../models/Coin.js');
 
 const fetchAndStoreCoinData = async () => {
     try {
@@ -44,6 +44,6 @@ const fetchAndStoreCoinData = async () => {
     }
 };
 
-export default fetchAndStoreCoinData;
+module.exports = fetchAndStoreCoinData;
 
 fetchAndStoreCoinData();
