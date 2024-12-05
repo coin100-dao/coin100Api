@@ -33,8 +33,17 @@ export class CloudflareDNSManager {
                 throw new Error('No matching DNS record found.');
             }
 
-            await this.updateRecord(dnsRecord.id, publicIp);
-            console.log(`Successfully updated DNS record for ${this.domain} to ${publicIp}`);
+            // Check if the IP is different before updating
+            if (dnsRecord.content === publicIp) {
+                console.log(`DNS record for ${this.domain} already points to ${publicIp}. No update needed.`);
+                return;
+            }
+
+            console.log(`Current DNS record for ${this.domain}: ${dnsRecord.content}`);
+            console.log(`New public IP: ${publicIp}`);
+            // await this.updateRecord(dnsRecord.id, publicIp);
+            // console.log(`Successfully updated DNS record for ${this.domain} from ${dnsRecord.content} to ${publicIp}`);
+            console.log(`[TEST MODE] Would update DNS record for ${this.domain} from ${dnsRecord.content} to ${publicIp}`);
         } catch (error) {
             throw new Error(`Failed to update DNS record: ${error.message}`);
         }
