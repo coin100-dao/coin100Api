@@ -22,9 +22,6 @@ export class CloudflareDNSManager {
                 'Content-Type': 'application/json'
             }
         });
-
-        // Log the headers we're using (without sensitive values)
-        console.log('Using headers:', Object.keys(this.client.defaults.headers));
     }
 
     async updateDNSRecord() {
