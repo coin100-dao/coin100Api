@@ -24,7 +24,7 @@ class CoinGeckoManager {
                     'Authorization': `Bearer ${this.apiKey}`
                 }
             });
-            console.log(response.data);
+            // console.log(response.data);
             return response.data;
         } catch (error) {
             console.error('Error fetching data from CoinGecko:', error);
