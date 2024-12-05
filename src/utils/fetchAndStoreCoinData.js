@@ -6,7 +6,7 @@ const fetchAndStoreCoinData = async () => {
     try {
         console.log('Fetching top 100 coins from CoinGecko...');
         const coins = await CoinGeckoManager.getTop100Coins();
-        console.log('Fetched top 100 coins from CoinGecko:', coins);
+        console.log('Fetched top 100 coins from CoinGecko:', coins[0]);
         for (const coinData of coins) {
             await Coin.upsert({
                 id: coinData.id,

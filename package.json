@@ -6,6 +6,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "update-dns": "node src/utils/updateDNS.js",
+    "sync": "node src/utils/syncDatabase.js",
     "migrate": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo",
     "migrate:create": "npx sequelize-cli migration:generate --name"
