@@ -1,4 +1,5 @@
-import { CloudflareDNSManager } from '@/services/CloudflareDNSManager';
+// src/utils/updateDNS.ts
+import { CloudflareDNSManager } from '../services/CloudflareDNSManager';
 
 // Usage example:
 const domain = 'coin100.link'; // Update with your domain
