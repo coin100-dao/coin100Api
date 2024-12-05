@@ -64,6 +64,7 @@ export class CloudflareDNSManager {
                 console.log('DNS record is already up to date.');
                 return;
             }
+            console.log('Updating DNS record...', record);
 
             const url = `https://api.cloudflare.com/client/v4/zones/${this.zoneId}/dns_records/${record.id}`;
             const response = await axios.put(

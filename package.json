@@ -1,6 +1,7 @@
 {
   "name": "coin100-api",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "ts-node index.ts",

@@ -1,4 +1,4 @@
-import { CloudflareDNSManager } from './CloudflareDNSManager';
+import { CloudflareDNSManager } from '@/services/CloudflareDNSManager';
 
 // Usage example:
 const domain = 'coin100.link'; // Update with your domain
@@ -8,4 +8,3 @@ dnsManager
     .updateDNSRecord()
     .then(() => console.log('DNS update process completed.'))
     .catch((error) => console.error(`Error: ${error.message}`));
-    
