@@ -41,9 +41,8 @@ export class CloudflareDNSManager {
 
             console.log(`Current DNS record for ${this.domain}: ${dnsRecord.content}`);
             console.log(`New public IP: ${publicIp}`);
-            // await this.updateRecord(dnsRecord.id, publicIp);
-            // console.log(`Successfully updated DNS record for ${this.domain} from ${dnsRecord.content} to ${publicIp}`);
-            console.log(`[TEST MODE] Would update DNS record for ${this.domain} from ${dnsRecord.content} to ${publicIp}`);
+            await this.updateRecord(dnsRecord.id, publicIp);
+            console.log(`Successfully updated DNS record for ${this.domain} from ${dnsRecord.content} to ${publicIp}`);
         } catch (error) {
             throw new Error(`Failed to update DNS record: ${error.message}`);
         }
