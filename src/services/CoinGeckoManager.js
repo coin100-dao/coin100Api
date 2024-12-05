@@ -12,6 +12,7 @@ class CoinGeckoManager {
 
     async getTop100Coins() {
         try {
+            console.log('Fetching top 100 coins from CoinGecko...');
             const response = await axios.get(`${this.baseUrl}/coins/markets`, {
                 params: {
                     vs_currency: 'usd',
@@ -23,6 +24,7 @@ class CoinGeckoManager {
                     'Authorization': `Bearer ${this.apiKey}`
                 }
             });
+            console.log(response.data);
             return response.data;
         } catch (error) {
             console.error('Error fetching data from CoinGecko:', error);

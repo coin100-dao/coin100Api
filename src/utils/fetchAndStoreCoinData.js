@@ -1,10 +1,12 @@
 // src/utils/fetchAndStoreCoinData.js
-import CoinGeckoManager from '../services/CoinGeckoManager';
-import Coin from '../models/Coin';
+import CoinGeckoManager from '../services/CoinGeckoManager.js';
+import Coin from '../models/Coin.js';
 
 const fetchAndStoreCoinData = async () => {
     try {
+        console.log('Fetching top 100 coins from CoinGecko...');
         const coins = await CoinGeckoManager.getTop100Coins();
+        console.log('Fetched top 100 coins from CoinGecko:', coins);
         for (const coinData of coins) {
             await Coin.upsert({
                 id: coinData.id,
@@ -34,6 +36,7 @@ const fetchAndStoreCoinData = async () => {
                 last_updated: new Date(coinData.last_updated),
                 currency: 'usd'
             });
+            break;
         }
         console.log('Coin data updated successfully.');
     } catch (error) {
@@ -42,3 +45,6 @@ const fetchAndStoreCoinData = async () => {
 };
 
 export default fetchAndStoreCoinData;
+
+
+fetchAndStoreCoinData();

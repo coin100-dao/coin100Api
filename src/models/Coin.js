@@ -1,8 +1,8 @@
 // src/models/Coin.js
 import { DataTypes } from 'sequelize';
-import sequelize from '../services/DatabaseManager';
+import databaseManager from '../services/DatabaseManager.js';
 
-const Coin = sequelize.define('Coin', {
+const Coin = databaseManager.sequelize.define('Coin', {
     id: {
         type: DataTypes.STRING,
         primaryKey: true,
@@ -37,4 +37,4 @@ const Coin = sequelize.define('Coin', {
     }
 });
 
-module.exports = Coin;
+export default Coin;

@@ -5,6 +5,7 @@ import { config } from 'dotenv';
 import cron from 'node-cron';
 import fetchAndStoreCoinData from './src/utils/fetchAndStoreCoinData';
 import verifyApiKey from './src/utils/verifyApiKey';
+import coinRoutes from './src/routes/coinRoutes';
 
 config();
 
@@ -25,6 +26,9 @@ app.get('/', (req, res) => {
 
 // Apply API key protection to all routes under /api
 app.use('/api', verifyApiKey);
+
+// Use coinRoutes for /api/coin100
+app.use('/api/coin100', coinRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
