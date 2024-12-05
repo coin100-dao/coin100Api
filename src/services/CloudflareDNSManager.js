@@ -1,7 +1,6 @@
 // src/services/CloudflareDNSManager.js
 import axios from 'axios';
 import { config } from 'dotenv';
-import { Cloudflare } from 'cloudflare';
 
 config();
 
@@ -13,9 +12,6 @@ export class CloudflareDNSManager {
         this.zoneId = process.env.CLOUDFLARE_ZONE_ID;
         this.AccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
         this.domain = domain;
-        this.cf = new Cloudflare({
-            token: this.token
-        });
     }
 
     async updateDNSRecord() {
@@ -27,7 +23,7 @@ export class CloudflareDNSManager {
                 throw new Error('No matching DNS record found.');
             }
 
-            await this.updateRecord(dnsRecord.id, publicIp);
+            // await this.updateRecord(dnsRecord.id, publicIp);
             console.log(`Successfully updated DNS record for ${this.domain} to ${publicIp}`);
         } catch (error) {
             throw new Error(`Failed to update DNS record: ${error.message}`);
@@ -45,8 +41,17 @@ export class CloudflareDNSManager {
 
     async getDNSRecord() {
         try {
-            const response = await this.cf.dnsRecords.browse(this.zoneId);
-            const records = response.result;
+            const response = await axios.get(
+                `https://api.cloudflare.com/client/v4/zones/${this.zoneId}/dns_records`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            console.log(response.data);
+            const records = response.data.result;
             return records.find(record => record.name === this.domain);
         } catch (error) {
             throw new Error(`Failed to fetch DNS record: ${error.message}`);
@@ -55,12 +60,21 @@ export class CloudflareDNSManager {
 
     async updateRecord(recordId, newIp) {
         try {
-            await this.cf.dnsRecords.edit(this.zoneId, recordId, {
-                type: 'A',
-                name: this.domain,
-                content: newIp,
-                proxied: true
-            });
+            await axios.put(
+                `https://api.cloudflare.com/client/v4/zones/${this.zoneId}/dns_records/${recordId}`,
+                {
+                    type: 'A',
+                    name: this.domain,
+                    content: newIp,
+                    proxied: true,
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
         } catch (error) {
             throw new Error(`Failed to update DNS record: ${error.message}`);
         }
