@@ -36,7 +36,7 @@ export class CloudflareDNSManager {
                 throw new Error('No matching DNS record found.');
             }
 
-            // await this.updateRecord(dnsRecord.id, publicIp);
+            await this.updateRecord(dnsRecord.id, publicIp);
             console.log(`Successfully updated DNS record for ${this.domain} to ${publicIp}`);
         } catch (error) {
             throw new Error(`Failed to update DNS record: ${error.message}`);
@@ -56,7 +56,6 @@ export class CloudflareDNSManager {
         try {
             console.log('Fetching DNS records for zone:', this.zoneId);
             const response = await this.client.get(`/zones/${this.zoneId}/dns_records`);
-            console.log('DNS Records Response:', response.data);
             
             if (response.data.result) {
                 return response.data.result.find(record => record.name === this.domain && record.type === 'A');
@@ -74,7 +73,6 @@ export class CloudflareDNSManager {
                 type: 'A',
                 name: this.domain,
                 content: newIp,
-                proxied: true,
                 ttl: 1 // Auto TTL
             });
         } catch (error) {
