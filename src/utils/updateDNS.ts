@@ -1,15 +1,11 @@
 import { CloudflareDNSManager } from './CloudflareDNSManager';
 
-async function updateDNSRecord() {
-    try {
-        const dnsManager = new CloudflareDNSManager();
-        await dnsManager.updateDNSRecord();
-        console.log('DNS record updated successfully');
-    } catch (error) {
-        console.error('Failed to update DNS record:', error);
-        process.exit(1);
-    }
-}
+// Usage example:
+const domain = 'coin100.link'; // Update with your domain
+const dnsManager = new CloudflareDNSManager(domain);
 
-// Run the update
-updateDNSRecord();
+dnsManager
+    .updateDNSRecord()
+    .then(() => console.log('DNS update process completed.'))
+    .catch((error) => console.error(`Error: ${error.message}`));
+    
