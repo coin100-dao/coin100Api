@@ -1,5 +1,4 @@
 // src/services/CloudflareDNSManager.js
-import Cloudflare from 'cloudflare';
 import axios from 'axios';
 import { config } from 'dotenv';
 
@@ -14,13 +13,18 @@ export class CloudflareDNSManager {
         this.zoneId = process.env.CLOUDFLARE_ZONE_ID;
         this.domain = domain;
 
-        this.cloudflare = new Cloudflare({
-            token: this.token,
-            // If using API Key authentication instead of token:
-            // apiKey: process.env.CLOUDFLARE_API_KEY,
-            // apiEmail: process.env.CLOUDFLARE_EMAIL,
+        // Create axios instance with base URL and auth headers
+        this.client = axios.create({
+            baseURL: 'https://api.cloudflare.com/client/v4',
+            headers: {
+                'X-Auth-Key': this.apiKey,
+                'X-Auth-Email': this.apiEmail,
+                'Content-Type': 'application/json'
+            }
         });
-        this.zoneId = this.zoneId;
+
+        // Log the headers we're using (without sensitive values)
+        console.log('Using headers:', Object.keys(this.client.defaults.headers));
     }
 
     async updateDNSRecord() {
@@ -50,20 +54,23 @@ export class CloudflareDNSManager {
 
     async getDNSRecord() {
         try {
-            const response = await this.cloudflare.dnsRecords.browse(this.zoneId, {
-                type: 'A',
-                name: this.domain
-            });
-            console.log(response);
-            return response.result[0]; // Get the first matching record
+            console.log('Fetching DNS records for zone:', this.zoneId);
+            const response = await this.client.get(`/zones/${this.zoneId}/dns_records`);
+            console.log('DNS Records Response:', response.data);
+            
+            if (response.data.result) {
+                return response.data.result.find(record => record.name === this.domain && record.type === 'A');
+            }
+            return null;
         } catch (error) {
+            console.error('Cloudflare API Error:', error.response?.data || error.message);
             throw new Error(`Failed to fetch DNS record: ${error.message}`);
         }
     }
 
     async updateRecord(recordId, newIp) {
         try {
-            await this.cloudflare.dnsRecords.edit(this.zoneId, recordId, {
+            await this.client.put(`/zones/${this.zoneId}/dns_records/${recordId}`, {
                 type: 'A',
                 name: this.domain,
                 content: newIp,
@@ -71,14 +78,14 @@ export class CloudflareDNSManager {
                 ttl: 1 // Auto TTL
             });
         } catch (error) {
+            console.error('Update Error:', error.response?.data || error.message);
             throw new Error(`Failed to update DNS record: ${error.message}`);
         }
     }
 
-    // Additional helper methods if needed
     async createRecord(ip) {
         try {
-            await this.cloudflare.dnsRecords.create(this.zoneId, {
+            await this.client.post(`/zones/${this.zoneId}/dns_records`, {
                 type: 'A',
                 name: this.domain,
                 content: ip,
@@ -86,14 +93,16 @@ export class CloudflareDNSManager {
                 ttl: 1 // Auto TTL
             });
         } catch (error) {
+            console.error('Create Error:', error.response?.data || error.message);
             throw new Error(`Failed to create DNS record: ${error.message}`);
         }
     }
 
     async deleteRecord(recordId) {
         try {
-            await this.cloudflare.dnsRecords.del(this.zoneId, recordId);
+            await this.client.delete(`/zones/${this.zoneId}/dns_records/${recordId}`);
         } catch (error) {
+            console.error('Delete Error:', error.response?.data || error.message);
             throw new Error(`Failed to delete DNS record: ${error.message}`);
         }
     }
