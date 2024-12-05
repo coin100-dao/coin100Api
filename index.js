@@ -2,32 +2,14 @@
 import express from 'express';
 import cors from 'cors';
 import { config } from 'dotenv';
+import cron from 'node-cron';
+import fetchAndStoreCoinData from './src/utils/fetchAndStoreCoinData';
+import verifyApiKey from './src/utils/verifyApiKey';
 
 config();
 
 const app = express();
 const port = process.env.PORT || 5555;
-
-// Middleware to verify API key
-const verifyApiKey = (req, res, next) => {
-    const apiKey = req.headers['x-api-key'];
-    
-    if (!apiKey) {
-        return res.status(401).json({ 
-            success: false, 
-            error: 'API key is required' 
-        });
-    }
-
-    if (apiKey !== process.env.COIN100_API_KEY) {
-        return res.status(403).json({ 
-            success: false, 
-            error: 'Invalid API key' 
-        });
-    }
-
-    next();
-};
 
 app.use(cors());
 app.use(express.json());
@@ -60,6 +42,9 @@ app.use((req, res) => {
         error: 'Route not found'
     });
 });
+
+// // Schedule a task to run every minute
+// cron.schedule('* * * * *', fetchAndStoreCoinData);
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
