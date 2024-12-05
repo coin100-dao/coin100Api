@@ -33,7 +33,7 @@ const fetchAndStoreCoinData = async () => {
                 atl: coinData.atl,
                 atl_change_percentage: coinData.atl_change_percentage,
                 atl_date: new Date(coinData.atl_date),
-                last_updated: new Date(coinData.last_updated),
+                lastUpdated: new Date(coinData.last_updated),
                 currency: 'usd'
             });
             break;
@@ -45,6 +45,5 @@ const fetchAndStoreCoinData = async () => {
 };
 
 export default fetchAndStoreCoinData;
-
 
 fetchAndStoreCoinData();
