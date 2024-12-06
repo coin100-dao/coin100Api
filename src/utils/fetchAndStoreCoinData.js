@@ -9,6 +9,9 @@ const fetchAndStoreCoinData = async () => {
         const coins = await CoinGeckoManager.getTop100Coins();
         logger.info(`Fetched ${coins.length} coins from CoinGecko`);
         
+        // Calculate total market cap
+        let totalMarketCap = 0n;
+        
         for (const coinData of coins) {
             logger.debug(`Processing coin: ${coinData.name} (${coinData.symbol.toUpperCase()})`);
             await db.Coin.upsert({
@@ -38,8 +41,23 @@ const fetchAndStoreCoinData = async () => {
                 atl_date: coinData.atl_date,
                 last_updated: coinData.last_updated
             });
+            
+            // Add to total market cap if it's a valid number
+            if (coinData.market_cap) {
+                totalMarketCap += BigInt(Math.floor(coinData.market_cap));
+            }
+            
             logger.debug(`Successfully updated/inserted coin: ${coinData.name}`);
         }
+
+        // Store total market cap
+        const timestamp = new Date();
+        await db.TotalTop100Cap.upsert({
+            timestamp,
+            total_market_cap: totalMarketCap.toString()
+        });
+        
+        logger.info(`Successfully stored total market cap: ${totalMarketCap.toString()}`);
         logger.debug('Successfully completed coin data update');
     } catch (error) {
         logger.error('Error updating coin data:', { error: error.message, stack: error.stack });
