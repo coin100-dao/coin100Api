@@ -4,6 +4,10 @@ import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import Sequelize from 'sequelize';
 import process from 'process';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,7 +15,8 @@ const require = createRequire(import.meta.url);
 
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
-const config = require('../config/config.json')[env];
+const configFile = process.env.PSQL_HOST === 'remote' ? 'remote-config.json' : 'local-config.json';
+const config = require(`../config/${configFile}`)[env];
 const db = {};
 
 let sequelize;
