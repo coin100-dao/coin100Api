@@ -5,7 +5,55 @@
 
 **Contract Address:** [0xdbe819ddf0d14a54ffe611c6d070b32a7f9d23d1](https://polygonscan.com/token/0xdbe819ddf0d14a54ffe611c6d070b32a7f9d23d1)
 
----
+## Installation and Deployment
+
+### Local Development
+1. Clone the repository
+2. Install dependencies:
+```bash
+npm install
+```
+3. Create a `.env` file with the required environment variables
+4. Start the development server:
+```bash
+npm start
+```
+
+### Production Deployment with PM2
+PM2 is used for process management in production. Here are the common commands:
+
+#### Starting/Restarting the Service
+```bash
+# Restart if exists, otherwise start new instance
+pm2 restart coin100-api || pm2 start /home/ec2-user/coin100Api/index.js --name "coin100-api"
+```
+
+#### Monitoring
+```bash
+# View logs in real-time
+pm2 logs coin100-api
+
+# View last 1000 lines of logs
+pm2 logs coin100-api --lines 1000
+
+# View dashboard
+pm2 monit
+```
+
+#### Other Useful PM2 Commands
+```bash
+# List all processes
+pm2 list
+
+# Stop the service
+pm2 stop coin100-api
+
+# Delete the service
+pm2 delete coin100-api
+
+# View process details
+pm2 show coin100-api
+```
 
 ## Table of Contents
 
