@@ -1,14 +1,17 @@
 // src/utils/fetchAndStoreCoinData.js
-const CoinGeckoManager = require('../services/CoinGeckoManager.js');
-const Coin = require('../models/Coin.js');
+import CoinGeckoManager from '../services/CoinGeckoManager.js';
+import db from '../models/index.js';
+import logger from './logger.js';
 
 const fetchAndStoreCoinData = async () => {
     try {
-        console.log('Fetching top 100 coins from CoinGecko...');
+        logger.info('Starting to fetch top 100 coins from CoinGecko...');
         const coins = await CoinGeckoManager.getTop100Coins();
-        console.log('Fetched top 100 coins from CoinGecko:', coins[0]);
+        logger.info(`Fetched ${coins.length} coins from CoinGecko`);
+        
         for (const coinData of coins) {
-            await Coin.upsert({
+            logger.debug(`Processing coin: ${coinData.name} (${coinData.symbol.toUpperCase()})`);
+            await db.Coin.upsert({
                 id: coinData.id,
                 symbol: coinData.symbol,
                 name: coinData.name,
@@ -29,21 +32,19 @@ const fetchAndStoreCoinData = async () => {
                 max_supply: coinData.max_supply,
                 ath: coinData.ath,
                 ath_change_percentage: coinData.ath_change_percentage,
-                ath_date: new Date(coinData.ath_date),
+                ath_date: coinData.ath_date,
                 atl: coinData.atl,
                 atl_change_percentage: coinData.atl_change_percentage,
-                atl_date: new Date(coinData.atl_date),
-                lastUpdated: new Date(coinData.last_updated),
-                currency: 'usd'
+                atl_date: coinData.atl_date,
+                last_updated: coinData.last_updated
             });
-            break;
+            logger.debug(`Successfully updated/inserted coin: ${coinData.name}`);
         }
-        console.log('Coin data updated successfully.');
+        logger.debug('Successfully completed coin data update');
     } catch (error) {
-        console.error('Error updating coin data:', error);
+        logger.error('Error updating coin data:', { error: error.message, stack: error.stack });
+        throw error;
     }
 };
 
-module.exports = fetchAndStoreCoinData;
-
-fetchAndStoreCoinData();
+export default fetchAndStoreCoinData;

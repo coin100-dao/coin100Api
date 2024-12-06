@@ -1,17 +1,19 @@
-// index.js
 import express from 'express';
 import cors from 'cors';
-import { config } from 'dotenv';
-import cron from 'node-cron';
-import fetchAndStoreCoinData from './src/utils/fetchAndStoreCoinData';
-import verifyApiKey from './src/utils/verifyApiKey';
-import coinRoutes from './src/routes/coinRoutes';
+import dotenv from 'dotenv';
+import logger from './src/utils/logger.js';
+import initializeDatabase from './src/utils/dbInit.js';
+import initializeScheduler from './src/utils/scheduler.js';
+import verifyApiKey from './src/utils/verifyApiKey.js';
+import coinRoutes from './src/routes/coinRoutes.js';
 
-config();
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5555;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
@@ -24,15 +26,15 @@ app.get('/', (req, res) => {
     });
 });
 
-// Apply API key protection to all routes under /api
+// Apply API key verification to all /api routes
 app.use('/api', verifyApiKey);
 
-// Use coinRoutes for /api/coin100
-app.use('/api/coin100', coinRoutes);
+// Routes
+app.use('/api/coins', coinRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    logger.error('Unhandled error:', { error: err.message, stack: err.stack });
     res.status(500).json({
         success: false,
         error: 'Internal Server Error'
@@ -41,15 +43,30 @@ app.use((err, req, res, next) => {
 
 // Handle 404 routes
 app.use((req, res) => {
+    logger.warn(`404 Not Found: ${req.method} ${req.url}`);
     res.status(404).json({
         success: false,
         error: 'Route not found'
     });
 });
 
-// // Schedule a task to run every minute
-// cron.schedule('* * * * *', fetchAndStoreCoinData);
+// Initialize application
+const startServer = async () => {
+    try {
+        // Initialize database
+        await initializeDatabase();
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+        // Start server
+        app.listen(port, () => {
+            logger.info(`Server is running on port ${port}`);
+            
+            // Initialize scheduler after server starts
+            initializeScheduler();
+        });
+    } catch (error) {
+        logger.error('Failed to start server:', { error: error.message, stack: error.stack });
+        process.exit(1);
+    }
+};
+
+startServer();

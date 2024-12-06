@@ -1,6 +1,6 @@
 // src/services/DatabaseManager.js
-const { Sequelize } = require('sequelize');
-const { config } = require('dotenv');
+import { Sequelize } from 'sequelize';
+import { config } from 'dotenv';
 
 config();
 
@@ -53,4 +53,4 @@ class DatabaseManager {
     }
 }
 
-module.exports = new DatabaseManager();
+export default new DatabaseManager();

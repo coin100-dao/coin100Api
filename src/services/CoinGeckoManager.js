@@ -1,6 +1,6 @@
 // src/services/CoinGeckoManager.js
-const axios = require('axios');
-const { config } = require('dotenv');
+import axios from 'axios';
+import { config } from 'dotenv';
 
 config();
 
@@ -12,7 +12,6 @@ class CoinGeckoManager {
 
     async getTop100Coins() {
         try {
-            console.log('Fetching top 100 coins from CoinGecko...');
             const response = await axios.get(`${this.baseUrl}/coins/markets`, {
                 params: {
                     vs_currency: 'usd',
@@ -33,4 +32,4 @@ class CoinGeckoManager {
     }
 }
 
-module.exports = new CoinGeckoManager();
+export default new CoinGeckoManager();

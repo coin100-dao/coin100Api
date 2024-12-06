@@ -1,4 +1,5 @@
-const { sequelize } = require('../models');
+import db from '../models/index.js';
+const { sequelize } = db;
 
 // Controller to handle raw queries on the coin100 table
 async function runRawQuery(req, res) {
@@ -11,4 +12,4 @@ async function runRawQuery(req, res) {
     }
 }
 
-module.exports = { runRawQuery };
+export { runRawQuery };

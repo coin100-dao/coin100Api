@@ -8,7 +8,8 @@
     "dialect": "postgres",
     "dialectOptions": {
       "ssl": false
-    }
+    },
+    "logging": false
   },
   "test": {
     "username": "mayor",
@@ -19,7 +20,8 @@
     "dialect": "postgres",
     "dialectOptions": {
       "ssl": false
-    }
+    },
+    "logging": false
   },
   "production": {
     "username": "mayor",
@@ -33,6 +35,7 @@
         "require": true,
         "rejectUnauthorized": false
       }
-    }
+    },
+    "logging": false
   }
 }
