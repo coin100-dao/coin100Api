@@ -51,22 +51,41 @@ app.use((req, res) => {
 });
 
 // Initialize application
-const startServer = async () => {
+let server;
+async function startServer() {
     try {
         // Initialize database
         await initializeDatabase();
+        logger.info('Database initialization completed');
+
+        // Initialize scheduler
+        await initializeScheduler();
+        logger.info('Scheduler initialization completed');
 
         // Start server
-        app.listen(port, () => {
+        server = app.listen(port, () => {
             logger.info(`Server is running on port ${port}`);
-            
-            // Initialize scheduler after server starts
-            initializeScheduler();
         });
+
+        return server;
     } catch (error) {
-        logger.error('Failed to start server:', { error: error.message, stack: error.stack });
+        logger.error('Failed to start server:', error);
         process.exit(1);
     }
-};
+}
 
-startServer();
+// Handle server shutdown
+process.on('SIGTERM', () => {
+    if (server) {
+        server.close(() => {
+            logger.info('Server closed');
+            process.exit(0);
+        });
+    }
+});
+
+if (process.env.NODE_ENV !== 'test') {
+    startServer();
+}
+
+export { app, server, startServer };
