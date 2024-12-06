@@ -3,7 +3,7 @@
     "username": "mayor",
     "password": "Mesari500$",
     "database": "coin100",
-    "host": "api.coin100.link",
+    "host": "localhost",
     "port": 5432,
     "dialect": "postgres",
     "dialectOptions": {
@@ -15,7 +15,7 @@
     "username": "mayor",
     "password": "Mesari500$",
     "database": "coin100",
-    "host": "api.coin100.link",
+    "host": "localhost",
     "port": 5432,
     "dialect": "postgres",
     "dialectOptions": {
@@ -31,10 +31,7 @@
     "port": 5432,
     "dialect": "postgres",
     "dialectOptions": {
-      "ssl": {
-        "require": true,
-        "rejectUnauthorized": false
-      }
+      "ssl": false
     },
     "logging": false
   }

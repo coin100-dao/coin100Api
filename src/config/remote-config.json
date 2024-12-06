@@ -1,0 +1,38 @@
+{
+  "development": {
+    "username": "mayor",
+    "password": "Mesari500$",
+    "database": "coin100",
+    "host": "api.coin100.link",
+    "port": 5432,
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": false
+    },
+    "logging": false
+  },
+  "test": {
+    "username": "mayor",
+    "password": "Mesari500$",
+    "database": "coin100",
+    "host": "api.coin100.link",
+    "port": 5432,
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": false
+    },
+    "logging": false
+  },
+  "production": {
+    "username": "mayor",
+    "password": "Mesari500$",
+    "database": "coin100",
+    "host": "api.coin100.link",
+    "port": 5432,
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": false
+    },
+    "logging": false
+  }
+}
