@@ -1,23 +1,24 @@
 // src/services/DatabaseManager.js
 import { Sequelize } from 'sequelize';
-import { config } from 'dotenv';
-
-config();
+import localConfig from '../config/local-config.json';
+import remoteConfig from '../config/remote-config.json';
 
 class DatabaseManager {
     constructor() {
-        const isDevelopment = process.env.ENV === 'development';
-        const dbHost = isDevelopment ? process.env.DB_HOST_REMOTE : process.env.DB_HOST_LOCAL;
+        const env = process.env.NODE_ENV || 'development';
+        const isDevelopment = env === 'development';
+        const config = isDevelopment ? remoteConfig[env] : localConfig[env];
         
         this.sequelize = new Sequelize(
-            process.env.DB_NAME,
-            process.env.DB_USER,
-            process.env.DB_PASSWORD,
+            config.database,
+            config.username,
+            config.password,
             {
-                host: dbHost,
-                port: process.env.DB_PORT,
-                dialect: 'postgres',
-                logging: false, 
+                host: config.host,
+                port: config.port,
+                dialect: config.dialect,
+                logging: config.logging,
+                dialectOptions: config.dialectOptions,
                 pool: {
                     max: 5,
                     min: 0,

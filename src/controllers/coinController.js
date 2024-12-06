@@ -152,4 +152,68 @@ async function getCoinData(req, res) {
     }
 }
 
+export const getTotalMarketCap = async (req, res) => {
+    try {
+        const { period } = req.query;
+        
+        // Validate period format
+        const validPeriods = ['5m', '15m', '1h', '4h', '1d', '7d'];
+        if (period && !validPeriods.includes(period)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid period format. Use: 5m, 15m, 1h, 4h, 1d, 7d'
+            });
+        }
+
+        // Calculate the start time based on the period
+        const now = new Date();
+        let startTime = new Date(now);
+        
+        switch(period) {
+            case '5m':
+                startTime.setMinutes(now.getMinutes() - 5);
+                break;
+            case '15m':
+                startTime.setMinutes(now.getMinutes() - 15);
+                break;
+            case '1h':
+                startTime.setHours(now.getHours() - 1);
+                break;
+            case '4h':
+                startTime.setHours(now.getHours() - 4);
+                break;
+            case '1d':
+                startTime.setDate(now.getDate() - 1);
+                break;
+            case '7d':
+                startTime.setDate(now.getDate() - 7);
+                break;
+            default:
+                startTime.setMinutes(now.getMinutes() - 5); // Default to 5m
+        }
+
+        const totalMarketCapData = await db.TotalTop100Cap.findAll({
+            where: {
+                timestamp: {
+                    [Op.gte]: startTime
+                }
+            },
+            order: [['timestamp', 'ASC']],
+            attributes: ['timestamp', 'total_market_cap']
+        });
+
+        res.json({
+            success: true,
+            period: period || '5m',
+            data: totalMarketCapData
+        });
+    } catch (error) {
+        console.error('Error fetching total market cap:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch total market cap data'
+        });
+    }
+};
+
 export { getCoinsData, getCoinData };

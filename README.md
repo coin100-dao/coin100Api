@@ -668,37 +668,41 @@ GET /api/coins/:symbol
 }
 ```
 
-### Error Responses
+#### 4. Get Total Market Cap
+Retrieve the total market capitalization of the top 100 cryptocurrencies over the specified time period.
 
-#### Invalid API Key
+```
+GET /api/coins/market/total
+```
+
+#### Query Parameters
+- `period` (optional): Time period for data retrieval
+  - Format: `[number][m/h/d/w/y]`
+  - Examples: `5m`, `1h`, `1d`
+  - Default: `5m`
+
+#### Response
 ```json
 {
-    "success": false,
-    "error": "Invalid API key"
+    "success": true,
+    "data": [
+        {
+            "timestamp": "2024-12-06T18:35:00.000Z",
+            "total_market_cap": "2000000000000"
+        },
+        {
+            "timestamp": "2024-12-06T18:30:00.000Z",
+            "total_market_cap": "1950000000000"
+        }
+    ]
 }
 ```
 
-#### Invalid Period Format
+#### Error Response
 ```json
 {
     "success": false,
-    "error": "Invalid period format. Use format: [number][m/h/d/w/y] (e.g., 5m, 1h, 1d)"
-}
-```
-
-#### Coin Not Found
-```json
-{
-    "success": false,
-    "error": "Coin not found"
-}
-```
-
-#### Server Error
-```json
-{
-    "success": false,
-    "error": "Internal Server Error"
+    "error": "Invalid period format. Use: 5m, 15m, 1h, 4h, 1d, 7d"
 }
 ```
 
