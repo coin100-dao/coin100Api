@@ -10,8 +10,14 @@ export default function(sequelize) {
             primaryKey: true,
             allowNull: false
         },
+        last_updated: {
+            type: DataTypes.DATE,
+            primaryKey: true,
+            allowNull: false
+        },
         symbol: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            allowNull: false
         },
         name: {
             type: DataTypes.STRING
@@ -79,9 +85,6 @@ export default function(sequelize) {
         atl_date: {
             type: DataTypes.DATE
         },
-        last_updated: {
-            type: DataTypes.DATE
-        },
         currency: {
             type: DataTypes.STRING,
             defaultValue: 'usd'
@@ -90,7 +93,12 @@ export default function(sequelize) {
         sequelize,
         modelName: 'Coin',
         tableName: 'coins',
-        timestamps: true
+        timestamps: false,
+        indexes: [
+            {
+                fields: ['symbol', 'last_updated']
+            }
+        ]
     });
 
     return Coin;
