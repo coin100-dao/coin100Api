@@ -24,49 +24,36 @@ async function getCoinsData(req, res) {
             });
         }
 
-        // First try to get records within the date range
         const results = await db.Coin.findAll({
             where: {
                 last_updated: {
                     [Op.between]: [startDate, endDate]
                 }
             },
-            order: [['market_cap_rank', 'ASC']],
-            logging: console.log
+            order: [
+                ['last_updated', 'ASC'],
+                ['market_cap_rank', 'ASC']
+            ],
+            attributes: [
+                'symbol',
+                'name',
+                'current_price',
+                'market_cap',
+                'market_cap_rank',
+                'total_volume',
+                'last_updated'
+            ]
         });
 
-        // If no results found within range, get the most recent data
         if (results.length === 0) {
-            logger.info('No data found within date range, fetching most recent data');
-            const mostRecentResults = await db.Coin.findAll({
-                order: [
-                    ['last_updated', 'DESC'],
-                    ['market_cap_rank', 'ASC']
-                ],
-                logging: console.log
-            });
-
-            if (mostRecentResults.length === 0) {
-                logger.warn('No coins found in database');
-                return res.status(404).json({
-                    success: false,
-                    error: 'No coin data available'
-                });
-            }
-
-            logger.info(`Retrieved ${mostRecentResults.length} coins (most recent data)`);
-            return res.json({
-                success: true,
-                dateRange: {
-                    start: startDate.toISOString(),
-                    end: endDate.toISOString()
-                },
-                count: mostRecentResults.length,
-                data: mostRecentResults
+            logger.info('No data found within specified date range');
+            return res.status(404).json({
+                success: false,
+                error: 'No coin data available for the specified date range'
             });
         }
 
-        logger.info(`Retrieved ${results.length} coins for date range`);
+        logger.info(`Retrieved ${results.length} coin entries for date range`);
         
         res.status(200).json({
             success: true,
@@ -117,7 +104,6 @@ async function getCoinData(req, res) {
             });
         }
 
-        // First try to get records within the date range
         const results = await db.Coin.findAll({
             where: {
                 symbol: symbol.toLowerCase(),
@@ -125,35 +111,23 @@ async function getCoinData(req, res) {
                     [Op.between]: [startDate, endDate]
                 }
             },
-            order: [['last_updated', 'ASC']]
+            order: [['last_updated', 'ASC']],
+            attributes: [
+                'symbol',
+                'name',
+                'current_price',
+                'market_cap',
+                'market_cap_rank',
+                'total_volume',
+                'last_updated'
+            ]
         });
 
-        // If no results found within range, get the most recent data for this symbol
         if (results.length === 0) {
-            const mostRecentResults = await db.Coin.findAll({
-                where: {
-                    symbol: symbol.toLowerCase()
-                },
-                order: [['last_updated', 'DESC']],
-                limit: 1
-            });
-
-            if (mostRecentResults.length === 0) {
-                logger.info('No data found for symbol:', symbol);
-                return res.status(404).json({
-                    success: false,
-                    error: 'No data found for the specified coin'
-                });
-            }
-
-            logger.info('Retrieved most recent data for symbol:', symbol);
-            return res.json({
-                success: true,
-                dateRange: {
-                    start: mostRecentResults[0].last_updated,
-                    end: mostRecentResults[0].last_updated
-                },
-                data: mostRecentResults
+            logger.info('No data found for symbol:', symbol);
+            return res.status(404).json({
+                success: false,
+                error: 'No data found for the specified coin in the given date range'
             });
         }
 
@@ -164,6 +138,7 @@ async function getCoinData(req, res) {
                 start: startDate.toISOString(),
                 end: endDate.toISOString()
             },
+            count: results.length,
             data: results
         });
     } catch (error) {
