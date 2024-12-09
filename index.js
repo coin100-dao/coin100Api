@@ -11,7 +11,15 @@ import coinRoutes from './src/routes/coinRoutes.js';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+const corsOptions = {
+    origin: 'https://coin100.link',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
+    credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Public endpoint - no API key required
