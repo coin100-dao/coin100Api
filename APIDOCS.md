@@ -1,4 +1,3 @@
-
 ## Coin100 API Documentation
 
 ## Installation and Deployment
@@ -87,44 +86,44 @@ GET /
 ```
 
 #### 2. Get All Coins Data
-Retrieve data for all coins within a specified time period.
+Retrieve data for all coins within a specified date range.
 
 ```
 GET /api/coins
 ```
 
 #### Query Parameters
-- `period` (optional): Time period for data retrieval
-  - Format: `[number][m/h/d/w/y]`
-  - Examples: `5m`, `1h`, `1d`
-  - Default: `5m`
+- `start` (optional): Start date in ISO 8601 format (e.g., "2024-01-01T00:00:00Z")
+  - If not provided, defaults to 5 minutes ago
+- `end` (optional): End date in ISO 8601 format
+  - If not provided, defaults to current time
 
 #### Response
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "id": "bitcoin",
-            "symbol": "btc",
-            "name": "Bitcoin",
-            "market_cap_rank": 1,
-            "current_price": 43521.12,
-            "market_cap": 851234567890,
-            "total_volume": 28901234567,
-            "high_24h": 44123.45,
-            "low_24h": 42987.65,
-            "price_change_24h": 534.21,
-            "price_change_percentage_24h": 1.23,
-            "last_updated": "2024-01-10T12:34:56.789Z"
-        },
-        // ... more coins
-    ]
+  "success": true,
+  "dateRange": {
+    "start": "2024-01-01T00:00:00.000Z",
+    "end": "2024-01-08T00:00:00.000Z"
+  },
+  "count": 100,
+  "data": [
+    {
+      "id": "bitcoin",
+      "symbol": "btc",
+      "name": "Bitcoin",
+      "market_cap_rank": 1,
+      "current_price": 50000,
+      "market_cap": 1000000000000,
+      "last_updated": "2024-01-08T00:00:00.000Z"
+    }
+    // ... more coins
+  ]
 }
 ```
 
 #### 3. Get Specific Coin Data
-Retrieve data for a specific coin by its symbol.
+Retrieve data for a specific coin within a specified date range.
 
 ```
 GET /api/coins/:symbol
@@ -134,33 +133,103 @@ GET /api/coins/:symbol
 - `symbol` (required): Coin symbol (e.g., "BTC", "ETH")
 
 #### Query Parameters
-- `period` (optional): Time period for data retrieval
-  - Format: `[number][m/h/d/w/y]`
-  - Examples: `5m`, `1h`, `1d`
-  - Default: `5m`
+- `start` (optional): Start date in ISO 8601 format (e.g., "2024-01-01T00:00:00Z")
+  - If not provided, defaults to 5 minutes ago
+- `end` (optional): End date in ISO 8601 format
+  - If not provided, defaults to current time
 
 #### Response
 ```json
 {
-    "success": true,
-    "data": {
-        "id": "bitcoin",
-        "symbol": "btc",
-        "name": "Bitcoin",
-        "market_cap_rank": 1,
-        "current_price": 43521.12,
-        "market_cap": 851234567890,
-        "total_volume": 28901234567,
-        "high_24h": 44123.45,
-        "low_24h": 42987.65,
-        "price_change_24h": 534.21,
-        "price_change_percentage_24h": 1.23,
-        "last_updated": "2024-01-10T12:34:56.789Z"
+  "success": true,
+  "dateRange": {
+    "start": "2024-01-01T00:00:00.000Z",
+    "end": "2024-01-08T00:00:00.000Z"
+  },
+  "count": 168,
+  "data": [
+    {
+      "id": "bitcoin",
+      "symbol": "btc",
+      "name": "Bitcoin",
+      "market_cap_rank": 1,
+      "current_price": 50000,
+      "market_cap": 1000000000000,
+      "last_updated": "2024-01-08T00:00:00.000Z"
     }
+    // ... more historical data points
+  ]
+}
+```
+
+#### Error Responses
+
+```json
+// Invalid date format
+{
+  "success": false,
+  "error": "Invalid date format. Use ISO 8601 format (e.g., 2024-01-01T00:00:00Z)"
+}
+
+// Missing symbol
+{
+  "success": false,
+  "error": "Symbol is required"
+}
+
+// No data found
+{
+  "success": false,
+  "error": "No data found for symbol: XYZ"
 }
 ```
 
 #### 4. Get Total Market Cap
+Retrieve the total market capitalization of the top 100 cryptocurrencies over the specified time period.
+
+```
+GET /api/coins/market/total
+```
+
+#### Query Parameters
+- `start` (optional): Start date in ISO 8601 format (e.g., "2024-01-01T00:00:00Z")
+  - If not provided, defaults to 5 minutes ago
+- `end` (optional): End date in ISO 8601 format
+  - If not provided, defaults to current time
+
+#### Response
+```json
+{
+  "success": true,
+  "dateRange": {
+    "start": "2024-01-01T00:00:00.000Z",
+    "end": "2024-01-08T00:00:00.000Z"
+  },
+  "data": [
+    {
+      "timestamp": "2024-01-01T00:00:00.000Z",
+      "total_market_cap": "2000000000000"
+    },
+    {
+      "timestamp": "2024-01-01T01:00:00.000Z",
+      "total_market_cap": "2001000000000"
+    }
+    // ... more data points
+  ]
+}
+```
+
+#### Error Responses
+
+```json
+// Invalid date format
+{
+  "success": false,
+  "error": "Invalid date format. Use ISO 8601 format (e.g., 2024-01-01T00:00:00Z)"
+}
+```
+
+#### 5. Get Total Market Cap
 Retrieve the total market capitalization of the top 100 cryptocurrencies over the specified time period.
 
 ```

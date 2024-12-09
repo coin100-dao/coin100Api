@@ -20,7 +20,7 @@ describe('Coin API Tests', () => {
     });
 
     describe('GET /api/coins', () => {
-        it('should return coin data within the last 5 minutes by default', async function() {
+        it('should return coin data for the last 5 minutes by default', async function() {
             this.timeout(5000);
             const response = await request(app)
                 .get('/api/coins')
@@ -28,7 +28,9 @@ describe('Coin API Tests', () => {
 
             expect(response.status).to.equal(200);
             expect(response.body).to.have.property('success', true);
-            expect(response.body).to.have.property('period', '5m');
+            expect(response.body).to.have.property('dateRange').that.is.an('object');
+            expect(response.body.dateRange).to.have.property('start');
+            expect(response.body.dateRange).to.have.property('end');
             expect(response.body).to.have.property('data').that.is.an('array');
             
             // Verify data structure if data exists
@@ -44,34 +46,80 @@ describe('Coin API Tests', () => {
             }
         });
 
-        it('should return coin data for a custom time period', async function() {
+        it('should return coin data for a custom date range (last week)', async function() {
             this.timeout(5000);
+            const endDate = new Date();
+            const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+
             const response = await request(app)
-                .get('/api/coins?period=1h')
+                .get(`/api/coins?start=${startDate.toISOString()}&end=${endDate.toISOString()}`)
                 .set('x-api-key', process.env.COIN100_API_KEY);
 
             expect(response.status).to.equal(200);
             expect(response.body).to.have.property('success', true);
-            expect(response.body).to.have.property('period', '1h');
-            expect(response.body).to.have.property('data').that.is.an('array');
+            expect(response.body).to.have.property('dateRange').that.is.an('object');
+            expect(new Date(response.body.dateRange.start)).to.be.at.most(startDate);
+            expect(new Date(response.body.dateRange.end)).to.be.at.least(startDate);
         });
 
-        it('should reject invalid period format', async function() {
+        it('should handle invalid date formats gracefully', async function() {
+            this.timeout(5000);
             const response = await request(app)
-                .get('/api/coins?period=invalid')
+                .get('/api/coins?start=invalid-date&end=also-invalid')
                 .set('x-api-key', process.env.COIN100_API_KEY);
 
             expect(response.status).to.equal(400);
             expect(response.body).to.have.property('success', false);
-            expect(response.body).to.have.property('error').that.includes('Invalid period format');
+            expect(response.body).to.have.property('error').that.includes('Invalid date format');
+        });
+    });
+
+    describe('GET /api/coins/coin', () => {
+        it('should return data for a specific coin within the last week', async function() {
+            this.timeout(5000);
+            const endDate = new Date();
+            const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+
+            const response = await request(app)
+                .get(`/api/coins/coin?symbol=BTC&start=${startDate.toISOString()}&end=${endDate.toISOString()}`)
+                .set('x-api-key', process.env.COIN100_API_KEY);
+
+            expect(response.status).to.equal(200);
+            expect(response.body).to.have.property('success', true);
+            expect(response.body).to.have.property('dateRange').that.is.an('object');
+            expect(response.body).to.have.property('data').that.is.an('array');
+            
+            if (response.body.data.length > 0) {
+                const coin = response.body.data[0];
+                expect(coin).to.have.property('symbol', 'btc');
+                expect(new Date(coin.last_updated)).to.be.at.least(startDate);
+                expect(new Date(coin.last_updated)).to.be.at.most(endDate);
+            }
         });
 
-        it('should require API key', async function() {
+        it('should return 400 for missing symbol', async function() {
+            this.timeout(5000);
             const response = await request(app)
-                .get('/api/coins');
+                .get('/api/coins/coin')
+                .set('x-api-key', process.env.COIN100_API_KEY);
 
-            expect(response.status).to.equal(401);
-            expect(response.body).to.have.property('message', 'API key is required');
+            expect(response.status).to.equal(400);
+            expect(response.body).to.have.property('success', false);
+            expect(response.body).to.have.property('error').that.includes('Symbol is required');
+        });
+
+        it('should return 404 for non-existent symbol', async function() {
+            this.timeout(5000);
+            const endDate = new Date();
+            const startDate = new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+            const response = await request(app)
+                .get(`/api/coins/coin?symbol=NONEXISTENT&start=${startDate.toISOString()}&end=${endDate.toISOString()}`)
+                .set('x-api-key', process.env.COIN100_API_KEY);
+
+            expect(response.status).to.equal(404);
+            expect(response.body).to.have.property('success', false);
+            expect(response.body).to.have.property('error').that.includes('No data found for symbol');
         });
     });
 });

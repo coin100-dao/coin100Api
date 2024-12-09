@@ -1,45 +1,43 @@
 import { Op } from 'sequelize';
 import db from '../models/index.js';
 import logger from '../utils/logger.js';
-import { periodToMilliseconds, isValidPeriod } from '../utils/timeUtils.js';
 
 /**
- * Get Coins data for all coins within specified time period
+ * Get Coins data for all coins within specified date range
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
 async function getCoinsData(req, res) {
     try {
-        const { period } = req.query;
-        logger.info('Fetching coins data with period:', { period });
+        const { start, end } = req.query;
+        logger.info('Fetching coins data with date range:', { start, end });
         
-        // Validate period format if provided
-        if (period && !isValidPeriod(period)) {
-            logger.warn('Invalid period format:', { period });
+        let startDate = start ? new Date(start) : new Date(Date.now() - 5 * 60 * 1000); // Default to last 5 minutes
+        let endDate = end ? new Date(end) : new Date();
+
+        // Validate dates
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            logger.warn('Invalid date format provided:', { start, end });
             return res.status(400).json({
                 success: false,
-                error: 'Invalid period format. Use format: [number][m/h/d/w/y] (e.g., 5m, 1h, 1d)'
+                error: 'Invalid date format. Use ISO 8601 format (e.g., 2024-01-01T00:00:00Z)'
             });
         }
 
-        // Calculate time threshold
-        const timeThreshold = period ? new Date(Date.now() - periodToMilliseconds(period)) : new Date(Date.now() - periodToMilliseconds('5m'));
-        logger.info('Time threshold:', { timeThreshold: timeThreshold.toISOString() });
-
-        // First try to get records within the time threshold
+        // First try to get records within the date range
         const results = await db.Coin.findAll({
             where: {
                 last_updated: {
-                    [Op.gte]: timeThreshold
+                    [Op.between]: [startDate, endDate]
                 }
             },
             order: [['market_cap_rank', 'ASC']],
             logging: console.log
         });
 
-        // If no results found within threshold, get the most recent data
+        // If no results found within range, get the most recent data
         if (results.length === 0) {
-            logger.info('No data found within time threshold, fetching most recent data');
+            logger.info('No data found within date range, fetching most recent data');
             const mostRecentResults = await db.Coin.findAll({
                 order: [
                     ['last_updated', 'DESC'],
@@ -59,17 +57,23 @@ async function getCoinsData(req, res) {
             logger.info(`Retrieved ${mostRecentResults.length} coins (most recent data)`);
             return res.json({
                 success: true,
-                period: period || '5m',
+                dateRange: {
+                    start: startDate.toISOString(),
+                    end: endDate.toISOString()
+                },
                 count: mostRecentResults.length,
                 data: mostRecentResults
             });
         }
 
-        logger.info(`Retrieved ${results.length} coins for period: ${period || '5m'}`);
+        logger.info(`Retrieved ${results.length} coins for date range`);
         
         res.status(200).json({
             success: true,
-            period: period || '5m',
+            dateRange: {
+                start: startDate.toISOString(),
+                end: endDate.toISOString()
+            },
             count: results.length,
             data: results
         });
@@ -83,14 +87,14 @@ async function getCoinsData(req, res) {
 }
 
 /**
- * Get data for a specific coin within specified time period
+ * Get data for a specific coin within specified date range
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
 async function getCoinData(req, res) {
     try {
-        const { symbol, period } = req.query;
-        logger.info('Fetching coin data:', { symbol, period });
+        const { symbol, start, end } = req.query;
+        logger.info('Fetching coin data:', { symbol, start, end });
 
         if (!symbol) {
             logger.warn('No symbol provided');
@@ -100,33 +104,30 @@ async function getCoinData(req, res) {
             });
         }
 
-        // Validate period format if provided
-        if (period && !isValidPeriod(period)) {
-            logger.warn('Invalid period format:', { period });
+        let startDate = start ? new Date(start) : new Date(Date.now() - 5 * 60 * 1000); // Default to last 5 minutes
+        let endDate = end ? new Date(end) : new Date();
+
+        // Validate dates
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            logger.warn('Invalid date format provided:', { start, end });
             return res.status(400).json({
                 success: false,
-                error: 'Invalid period format. Use format: [number][m/h/d/w/y] (e.g., 5m, 1h, 1d)'
+                error: 'Invalid date format. Use ISO 8601 format (e.g., 2024-01-01T00:00:00Z)'
             });
         }
 
-        // Calculate time threshold
-        const timeThreshold = period ? new Date(Date.now() - periodToMilliseconds(period)) : new Date(Date.now() - periodToMilliseconds('5m'));
-        logger.info('Time threshold:', { timeThreshold: timeThreshold.toISOString() });
-
-        // Query for the coin data
-        logger.info('Querying database for coin:', { symbol: symbol.toLowerCase() });
-        const result = await db.Coin.findOne({
+        const results = await db.Coin.findAll({
             where: {
                 symbol: symbol.toLowerCase(),
                 last_updated: {
-                    [Op.gte]: timeThreshold
+                    [Op.between]: [startDate, endDate]
                 }
             },
             order: [['last_updated', 'DESC']],
             logging: console.log
         });
 
-        if (!result) {
+        if (results.length === 0) {
             logger.warn('No data found for symbol:', { symbol });
             return res.status(404).json({
                 success: false,
@@ -134,14 +135,16 @@ async function getCoinData(req, res) {
             });
         }
 
-        logger.info('Found coin data:', { symbol, lastUpdated: result.last_updated });
-
-        res.status(200).json({
+        logger.info(`Retrieved ${results.length} records for symbol: ${symbol}`);
+        
+        res.json({
             success: true,
-            symbol,
-            period: period || '5m',
-            count: 1,
-            data: [result]
+            dateRange: {
+                start: startDate.toISOString(),
+                end: endDate.toISOString()
+            },
+            count: results.length,
+            data: results
         });
     } catch (error) {
         logger.error('Error in getCoinData:', error);
@@ -154,48 +157,24 @@ async function getCoinData(req, res) {
 
 export const getTotalMarketCap = async (req, res) => {
     try {
-        const { period } = req.query;
+        const { start, end } = req.query;
         
-        // Validate period format
-        const validPeriods = ['5m', '15m', '1h', '4h', '1d', '7d'];
-        if (period && !validPeriods.includes(period)) {
+        let startDate = start ? new Date(start) : new Date(Date.now() - 5 * 60 * 1000); // Default to last 5 minutes
+        let endDate = end ? new Date(end) : new Date();
+
+        // Validate dates
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            logger.warn('Invalid date format provided:', { start, end });
             return res.status(400).json({
                 success: false,
-                error: 'Invalid period format. Use: 5m, 15m, 1h, 4h, 1d, 7d'
+                error: 'Invalid date format. Use ISO 8601 format (e.g., 2024-01-01T00:00:00Z)'
             });
-        }
-
-        // Calculate the start time based on the period
-        const now = new Date();
-        let startTime = new Date(now);
-        
-        switch(period) {
-            case '5m':
-                startTime.setMinutes(now.getMinutes() - 5);
-                break;
-            case '15m':
-                startTime.setMinutes(now.getMinutes() - 15);
-                break;
-            case '1h':
-                startTime.setHours(now.getHours() - 1);
-                break;
-            case '4h':
-                startTime.setHours(now.getHours() - 4);
-                break;
-            case '1d':
-                startTime.setDate(now.getDate() - 1);
-                break;
-            case '7d':
-                startTime.setDate(now.getDate() - 7);
-                break;
-            default:
-                startTime.setMinutes(now.getMinutes() - 5); // Default to 5m
         }
 
         const totalMarketCapData = await db.TotalTop100Cap.findAll({
             where: {
                 timestamp: {
-                    [Op.gte]: startTime
+                    [Op.between]: [startDate, endDate]
                 }
             },
             order: [['timestamp', 'ASC']],
@@ -204,7 +183,10 @@ export const getTotalMarketCap = async (req, res) => {
 
         res.json({
             success: true,
-            period: period || '5m',
+            dateRange: {
+                start: startDate.toISOString(),
+                end: endDate.toISOString()
+            },
             data: totalMarketCapData
         });
     } catch (error) {
