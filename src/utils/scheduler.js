@@ -2,7 +2,7 @@ import cron from 'node-cron';
 import logger from './logger.js';
 import fetchAndStoreCoinData from './fetchAndStoreCoinData.js';
 
-const initializeScheduler = async () => {
+async function initializeScheduler() {
     logger.info('Initializing scheduled tasks...');
 
     // Schedule coin data fetch every 5 minutes
@@ -24,6 +24,6 @@ const initializeScheduler = async () => {
     } catch (error) {
         logger.error('Initial coin data fetch failed:', { error: error.message });
     }
-};
+}
 
-export default initializeScheduler;
+export { initializeScheduler };

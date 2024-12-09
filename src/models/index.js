@@ -5,6 +5,7 @@ import { createRequire } from 'module';
 import Sequelize from 'sequelize';
 import process from 'process';
 import dotenv from 'dotenv';
+import logger from '../utils/logger.js';
 
 // Load environment variables
 dotenv.config();
@@ -53,7 +54,24 @@ Object.keys(db).forEach(modelName => {
   }
 });
 
+async function initializeDatabase() {
+  try {
+    await sequelize.authenticate();
+    logger.info('Database connection has been established successfully.');
+    
+    // Sync all models with the database
+    await sequelize.sync();
+    logger.info('All models were synchronized successfully.');
+    
+    return true;
+  } catch (error) {
+    logger.error('Unable to connect to the database:', error);
+    throw error;
+  }
+}
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+export { initializeDatabase };
 export default db;

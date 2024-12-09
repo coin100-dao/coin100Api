@@ -2,18 +2,15 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import logger from './src/utils/logger.js';
-import initializeDatabase from './src/utils/dbInit.js';
-import initializeScheduler from './src/utils/scheduler.js';
-import verifyApiKey from './src/utils/verifyApiKey.js';
+import { initializeDatabase } from './src/models/index.js';
+import { initializeScheduler } from './src/utils/scheduler.js';
+import { verifyApiKey } from './src/utils/verifyApiKey.js';
 import coinRoutes from './src/routes/coinRoutes.js';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 5555;
-
-// Middleware
 app.use(cors());
 app.use(express.json());
 
@@ -52,19 +49,35 @@ app.use((req, res) => {
 
 // Initialize application
 let server;
-async function startServer() {
+const startServer = async () => {
     try {
         // Initialize database
         await initializeDatabase();
         logger.info('Database initialization completed');
 
-        // Initialize scheduler
-        await initializeScheduler();
-        logger.info('Scheduler initialization completed');
+        // Initialize scheduler in non-test environment
+        if (process.env.NODE_ENV !== 'test') {
+            logger.info('Initializing scheduled tasks...');
+            await initializeScheduler();
+            logger.info('Scheduler initialization completed');
+        }
+
+        // Get port from environment variable or use default
+        const port = process.env.PORT || 5555;
 
         // Start server
         server = app.listen(port, () => {
             logger.info(`Server is running on port ${port}`);
+        });
+
+        // Handle server errors
+        server.on('error', (error) => {
+            if (error.code === 'EADDRINUSE') {
+                logger.error(`Port ${port} is already in use`);
+                process.exit(1);
+            } else {
+                logger.error('Server error:', error);
+            }
         });
 
         return server;
@@ -72,7 +85,7 @@ async function startServer() {
         logger.error('Failed to start server:', error);
         process.exit(1);
     }
-}
+};
 
 // Handle server shutdown
 process.on('SIGTERM', () => {

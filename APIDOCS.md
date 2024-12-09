@@ -50,31 +50,181 @@ pm2 delete coin100-api
 pm2 show coin100-api
 ```
 
-### Authentication
-All API endpoints (except the health check endpoint) require an API key to be included in the request headers:
+## Authentication
+
+All API endpoints require an API key to be included in the request headers:
 
 ```
 x-api-key: your-api-key-here
 ```
 
-### Base URL
+If no API key is provided or an invalid key is used, the API will return a 401 Unauthorized response.
+
+## Base URL
 The base URL for all endpoints is:
 ```
 http://localhost:5555  # For local development
 https://api.coin100.link  # For production
 ```
 
-### Database Configuration
+## Database Configuration
 The API supports both local and remote database connections. Set the `PSQL_HOST` environment variable to either `local` or `remote` to switch between configurations.
 
-### Endpoints
+## Endpoints
 
-#### 1. Health Check
-Check if the API is running.
+### Get All Coins Data
+
+```
+GET /api/coins
+```
+
+Retrieves data for all coins. By default, returns data from the last 5 minutes.
+
+#### Query Parameters
+
+- `start` (optional): Start date in ISO format (e.g., "2023-12-09T00:00:00Z")
+- `end` (optional): End date in ISO format (e.g., "2023-12-09T23:59:59Z")
+
+#### Response
+
+```json
+{
+  "success": true,
+  "dateRange": {
+    "start": "2023-12-09T00:00:00.000Z",
+    "end": "2023-12-09T23:59:59.999Z"
+  },
+  "data": [
+    {
+      "symbol": "btc",
+      "name": "Bitcoin",
+      "current_price": 42000,
+      "market_cap": 820000000000,
+      "market_cap_rank": 1,
+      // ... other coin properties
+    }
+    // ... other coins
+  ]
+}
+```
+
+### Get Specific Coin Data
+
+```
+GET /api/coins/symbol/:symbol
+```
+
+Retrieves data for a specific coin by its symbol (e.g., "btc" for Bitcoin).
+
+#### URL Parameters
+
+- `symbol`: The coin symbol (e.g., "btc", "eth")
+
+#### Query Parameters
+
+- `start` (optional): Start date in ISO format
+- `end` (optional): End date in ISO format
+
+#### Response
+
+```json
+{
+  "success": true,
+  "dateRange": {
+    "start": "2023-12-09T00:00:00.000Z",
+    "end": "2023-12-09T23:59:59.999Z"
+  },
+  "data": [
+    {
+      "symbol": "btc",
+      "name": "Bitcoin",
+      "current_price": 42000,
+      // ... other coin properties
+    }
+  ]
+}
+```
+
+If no data is found within the specified date range, the API will return the most recent data available for that coin.
+
+#### Error Response
+
+If the coin symbol doesn't exist:
+
+```json
+{
+  "success": false,
+  "error": "No data found for the specified coin"
+}
+```
+
+### Get Total Market Data
+
+```
+GET /api/coins/market/total
+```
+
+Retrieves total market capitalization data.
+
+#### Query Parameters
+
+- `start` (optional): Start date in ISO format
+- `end` (optional): End date in ISO format
+
+#### Response
+
+```json
+{
+  "success": true,
+  "dateRange": {
+    "start": "2023-12-09T00:00:00.000Z",
+    "end": "2023-12-09T23:59:59.999Z"
+  },
+  "data": [
+    {
+      "total_market_cap": 1650000000000,
+      "timestamp": "2023-12-09T12:00:00.000Z"
+    }
+    // ... other time points
+  ]
+}
+```
+
+## Error Responses
+
+### Authentication Error (401)
+
+```json
+{
+  "message": "API key is required"
+}
+```
+
+### Invalid Date Format (400)
+
+```json
+{
+  "success": false,
+  "error": "Invalid date format"
+}
+```
+
+### Resource Not Found (404)
+
+```json
+{
+  "success": false,
+  "error": "No data found for the specified coin"
+}
+```
+
+## Health Check
 
 ```
 GET /
 ```
+
+Check if the API is running.
 
 #### Response
 ```json
@@ -82,187 +232,5 @@ GET /
     "success": true,
     "message": "Coin100 API is running!",
     "version": "1.0.0"
-}
-```
-
-#### 2. Get All Coins Data
-Retrieve data for all coins within a specified date range.
-
-```
-GET /api/coins
-```
-
-#### Query Parameters
-- `start` (optional): Start date in ISO 8601 format (e.g., "2024-01-01T00:00:00Z")
-  - If not provided, defaults to 5 minutes ago
-- `end` (optional): End date in ISO 8601 format
-  - If not provided, defaults to current time
-
-#### Response
-```json
-{
-  "success": true,
-  "dateRange": {
-    "start": "2024-01-01T00:00:00.000Z",
-    "end": "2024-01-08T00:00:00.000Z"
-  },
-  "count": 100,
-  "data": [
-    {
-      "id": "bitcoin",
-      "symbol": "btc",
-      "name": "Bitcoin",
-      "market_cap_rank": 1,
-      "current_price": 50000,
-      "market_cap": 1000000000000,
-      "last_updated": "2024-01-08T00:00:00.000Z"
-    }
-    // ... more coins
-  ]
-}
-```
-
-#### 3. Get Specific Coin Data
-Retrieve data for a specific coin within a specified date range.
-
-```
-GET /api/coins/:symbol
-```
-
-#### Parameters
-- `symbol` (required): Coin symbol (e.g., "BTC", "ETH")
-
-#### Query Parameters
-- `start` (optional): Start date in ISO 8601 format (e.g., "2024-01-01T00:00:00Z")
-  - If not provided, defaults to 5 minutes ago
-- `end` (optional): End date in ISO 8601 format
-  - If not provided, defaults to current time
-
-#### Response
-```json
-{
-  "success": true,
-  "dateRange": {
-    "start": "2024-01-01T00:00:00.000Z",
-    "end": "2024-01-08T00:00:00.000Z"
-  },
-  "count": 168,
-  "data": [
-    {
-      "id": "bitcoin",
-      "symbol": "btc",
-      "name": "Bitcoin",
-      "market_cap_rank": 1,
-      "current_price": 50000,
-      "market_cap": 1000000000000,
-      "last_updated": "2024-01-08T00:00:00.000Z"
-    }
-    // ... more historical data points
-  ]
-}
-```
-
-#### Error Responses
-
-```json
-// Invalid date format
-{
-  "success": false,
-  "error": "Invalid date format. Use ISO 8601 format (e.g., 2024-01-01T00:00:00Z)"
-}
-
-// Missing symbol
-{
-  "success": false,
-  "error": "Symbol is required"
-}
-
-// No data found
-{
-  "success": false,
-  "error": "No data found for symbol: XYZ"
-}
-```
-
-#### 4. Get Total Market Cap
-Retrieve the total market capitalization of the top 100 cryptocurrencies over the specified time period.
-
-```
-GET /api/coins/market/total
-```
-
-#### Query Parameters
-- `start` (optional): Start date in ISO 8601 format (e.g., "2024-01-01T00:00:00Z")
-  - If not provided, defaults to 5 minutes ago
-- `end` (optional): End date in ISO 8601 format
-  - If not provided, defaults to current time
-
-#### Response
-```json
-{
-  "success": true,
-  "dateRange": {
-    "start": "2024-01-01T00:00:00.000Z",
-    "end": "2024-01-08T00:00:00.000Z"
-  },
-  "data": [
-    {
-      "timestamp": "2024-01-01T00:00:00.000Z",
-      "total_market_cap": "2000000000000"
-    },
-    {
-      "timestamp": "2024-01-01T01:00:00.000Z",
-      "total_market_cap": "2001000000000"
-    }
-    // ... more data points
-  ]
-}
-```
-
-#### Error Responses
-
-```json
-// Invalid date format
-{
-  "success": false,
-  "error": "Invalid date format. Use ISO 8601 format (e.g., 2024-01-01T00:00:00Z)"
-}
-```
-
-#### 5. Get Total Market Cap
-Retrieve the total market capitalization of the top 100 cryptocurrencies over the specified time period.
-
-```
-GET /api/coins/market/total
-```
-
-#### Query Parameters
-- `period` (optional): Time period for data retrieval
-  - Format: `[number][m/h/d/w/y]`
-  - Examples: `5m`, `1h`, `1d`
-  - Default: `5m`
-
-#### Response
-```json
-{
-    "success": true,
-    "data": [
-        {
-            "timestamp": "2024-12-06T18:35:00.000Z",
-            "total_market_cap": "2000000000000"
-        },
-        {
-            "timestamp": "2024-12-06T18:30:00.000Z",
-            "total_market_cap": "1950000000000"
-        }
-    ]
-}
-```
-
-#### Error Response
-```json
-{
-    "success": false,
-    "error": "Invalid period format. Use: 5m, 15m, 1h, 4h, 1d, 7d"
 }
 ```
