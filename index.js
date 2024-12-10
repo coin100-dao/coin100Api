@@ -13,7 +13,13 @@ const app = express();
 
 // CORS middleware
 app.use((req, res, next) => {
-    const allowedOrigins = ['http://localhost:5173', 'https://coin100.link'];
+    const allowedOrigins = ['https://coin100.link'];
+    
+    // Add localhost to allowed origins in development
+    if (process.env.NODE_ENV === 'development') {
+        allowedOrigins.push('http://localhost:5173');
+    }
+
     const origin = req.headers.origin;
     
     // Allow any of the permitted origins
