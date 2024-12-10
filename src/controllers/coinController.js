@@ -92,7 +92,7 @@ async function getCoinData(req, res) {
             });
         }
 
-        let startDate = start ? new Date(start) : new Date(Date.now() - 5 * 60 * 1000); // Default to last 5 minutes
+        let startDate = start ? new Date(start) : new Date(Date.now() - 60 * 60 * 1000); // Default to last 60 minutes
         let endDate = end ? new Date(end) : new Date();
 
         // Validate dates
