@@ -13,16 +13,28 @@ const app = express();
 
 // CORS middleware
 app.use((req, res, next) => {
+    const allowedOrigins = ['http://localhost:5173', 'https://coin100.link'];
     const origin = req.headers.origin;
-    if (origin === 'http://localhost:5173' || origin === 'https://coin100.link') {
+    
+    // Allow any of the permitted origins
+    if (allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
     }
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
+
+    // Required for credentials
     res.setHeader('Access-Control-Allow-Credentials', 'true');
+    
+    // Allow all necessary headers
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key');
+    
+    // Allow all necessary methods
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+
+    // Handle preflight
     if (req.method === 'OPTIONS') {
-        return res.sendStatus(200);
+        return res.status(200).end();
     }
+
     next();
 });
 
