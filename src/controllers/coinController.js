@@ -12,7 +12,7 @@ async function getCoinsData(req, res) {
         const { start, end } = req.query;
         logger.info('Fetching coins data with date range:', { start, end });
         
-        let startDate = start ? new Date(start) : new Date(Date.now() - 5 * 60 * 1000); // Default to last 5 minutes
+        let startDate = start ? new Date(start) : new Date(Date.now() - 60 * 60 * 1000); // Default to last 60 minutes
         let endDate = end ? new Date(end) : new Date();
 
         // Validate dates
