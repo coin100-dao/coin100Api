@@ -23,6 +23,18 @@ const consoleFormat = printf(({ level, message, timestamp }) => {
     }
 });
 
+// Custom format for API logs
+const apiLogFormat = printf(({ timestamp, method, path, ip, status, message }) => {
+    return JSON.stringify({
+        timestamp,
+        method,
+        path,
+        ip,
+        status,
+        message
+    });
+});
+
 // Create the logger
 const logger = createLogger({
     level: process.env.LOG_LEVEL || 'info',
@@ -52,8 +64,30 @@ const logger = createLogger({
             datePattern: 'YYYY-MM-DD',
             maxSize: '20m',
             maxFiles: '14d'
+        }),
+        // Specific transport for API requests
+        new transports.DailyRotateFile({
+            filename: 'logs/api-%DATE%.log',
+            datePattern: 'YYYY-MM-DD',
+            maxSize: '20m',
+            maxFiles: '14d',
+            format: combine(
+                timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+                apiLogFormat
+            )
         })
     ]
 });
+
+// Add a specific method for API logging
+logger.apiRequest = (req, status, message) => {
+    logger.info({
+        method: req.method,
+        path: req.path,
+        ip: req.ip,
+        status,
+        message
+    });
+};
 
 export default logger;
