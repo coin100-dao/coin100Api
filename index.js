@@ -1,5 +1,4 @@
 import express from 'express';
-import cors from 'cors';
 import dotenv from 'dotenv';
 import logger from './src/utils/logger.js';
 import { initializeDatabase } from './src/models/index.js';
@@ -12,21 +11,21 @@ dotenv.config();
 
 const app = express();
 
-const corsOptions = {
-    origin: function(origin, callback) {
-        const allowedOrigins = ['https://coin100.link', 'http://localhost:5173'];
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key'],
-    credentials: true
-};
+// CORS middleware
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin === 'http://localhost:5173' || origin === 'https://coin100.link') {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-api-key');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
 
-app.use(cors(corsOptions));
 app.use(express.json());
 
 // Public endpoint - no API key required
