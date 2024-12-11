@@ -9,6 +9,7 @@ import coinRoutes from './src/routes/coinRoutes.js';
 // Load environment variables
 dotenv.config();
 
+
 const app = express();
 
 // CORS middleware
