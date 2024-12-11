@@ -13,6 +13,13 @@ const app = express();
 
 // CORS middleware
 app.use((req, res, next) => {
+    logger.info('Incoming request:', {
+        origin: req.headers.origin,
+        path: req.path,
+        method: req.method,
+        query: req.query
+    });
+
     const allowedOrigins = ['https://coin100.link'];
     
     // Add localhost to allowed origins in development
@@ -25,6 +32,9 @@ app.use((req, res, next) => {
     // Allow any of the permitted origins
     if (allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
+        logger.info('CORS allowed for origin:', origin);
+    } else {
+        logger.warn('CORS blocked for origin:', origin);
     }
 
     // Required for credentials
