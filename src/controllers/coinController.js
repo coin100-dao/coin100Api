@@ -159,17 +159,14 @@ async function getTotalMarketCap(req, res) {
     try {
         const { start, end } = req.query;
         
-        let startDate = start ? new Date(start) : new Date(Date.now() - 60 * 60 * 1000); // Default to last 60 minutes
+        let startDate = start ? new Date(start) : new Date(Date.now() - 60 * 60 * 1000);
         let endDate = end ? new Date(end) : new Date();
 
-        // Validate dates
-        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-            logger.warn('Invalid date format provided:', { start, end });
-            return res.status(400).json({
-                success: false,
-                error: 'Invalid date format. Use ISO 8601 format (e.g., 2024-01-01T00:00:00Z)'
-            });
-        }
+        logger.info('Fetching total market cap data with params:', {
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        });
 
         const totalMarketCapData = await db.TotalTop100Cap.findAll({
             where: {
@@ -181,6 +178,18 @@ async function getTotalMarketCap(req, res) {
             attributes: ['timestamp', 'total_market_cap']
         });
 
+        logger.info('Total market cap query results:', {
+            resultCount: totalMarketCapData.length,
+            firstRecord: totalMarketCapData[0] ? {
+                timestamp: totalMarketCapData[0].timestamp,
+                total_market_cap: totalMarketCapData[0].total_market_cap
+            } : null,
+            lastRecord: totalMarketCapData[totalMarketCapData.length - 1] ? {
+                timestamp: totalMarketCapData[totalMarketCapData.length - 1].timestamp,
+                total_market_cap: totalMarketCapData[totalMarketCapData.length - 1].total_market_cap
+            } : null
+        });
+
         res.json({
             success: true,
             dateRange: {
@@ -190,7 +199,7 @@ async function getTotalMarketCap(req, res) {
             data: totalMarketCapData
         });
     } catch (error) {
-        console.error('Error fetching total market cap:', error);
+        logger.error('Error fetching total market cap:', error);
         res.status(500).json({
             success: false,
             error: 'Failed to fetch total market cap data'
