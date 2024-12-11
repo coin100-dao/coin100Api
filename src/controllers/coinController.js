@@ -10,6 +10,13 @@ import logger from '../utils/logger.js';
 async function getCoinsData(req, res) {
     try {
         const { start, end } = req.query;
+        logger.info('Request received for coins data:', {
+            headers: req.headers,
+            originalUrl: req.originalUrl,
+            protocol: req.protocol,
+            host: req.get('host')
+        });
+        
         logger.info('Fetching coins data with date range:', { start, end });
         
         let startDate = start ? new Date(start) : new Date(Date.now() - 60 * 60 * 1000); // Default to last 60 minutes
@@ -45,6 +52,11 @@ async function getCoinsData(req, res) {
             ]
         });
 
+        logger.info('Query completed:', {
+            sql: results.length > 0 ? results[0].sequelize.log : 'No results',
+            resultCount: results.length
+        });
+
         if (results.length === 0) {
             logger.info('No data found within specified date range');
             return res.status(404).json({
@@ -65,7 +77,10 @@ async function getCoinsData(req, res) {
             data: results
         });
     } catch (error) {
-        logger.error('Error in getCoinsData:', error);
+        logger.error('Error in getCoinsData:', {
+            error: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
             error: error.message
@@ -82,6 +97,13 @@ async function getCoinData(req, res) {
     try {
         const { symbol } = req.params;
         const { start, end } = req.query;
+        logger.info('Request received for coin data:', {
+            headers: req.headers,
+            originalUrl: req.originalUrl,
+            protocol: req.protocol,
+            host: req.get('host')
+        });
+        
         logger.info('Fetching coin data:', { symbol, start, end });
 
         if (!symbol) {
@@ -123,6 +145,11 @@ async function getCoinData(req, res) {
             ]
         });
 
+        logger.info('Query completed:', {
+            sql: results.length > 0 ? results[0].sequelize.log : 'No results',
+            resultCount: results.length
+        });
+
         if (results.length === 0) {
             logger.info('No data found for symbol:', symbol);
             return res.status(404).json({
@@ -142,7 +169,10 @@ async function getCoinData(req, res) {
             data: results
         });
     } catch (error) {
-        logger.error('Error in getCoinData:', error);
+        logger.error('Error in getCoinData:', {
+            error: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
             error: 'Internal server error'
@@ -159,6 +189,18 @@ async function getTotalMarketCap(req, res) {
     try {
         const { start, end } = req.query;
         
+        logger.info('Request received for total market cap:', {
+            headers: req.headers,
+            originalUrl: req.originalUrl,
+            protocol: req.protocol,
+            host: req.get('host')
+        });
+        
+        logger.info('Fetching total market cap data with params:', {
+            startDate: start,
+            endDate: end
+        });
+
         let startDate = start ? new Date(start) : new Date(Date.now() - 60 * 60 * 1000);
         let endDate = end ? new Date(end) : new Date();
 
@@ -178,16 +220,9 @@ async function getTotalMarketCap(req, res) {
             attributes: ['timestamp', 'total_market_cap']
         });
 
-        logger.info('Total market cap query results:', {
-            resultCount: totalMarketCapData.length,
-            firstRecord: totalMarketCapData[0] ? {
-                timestamp: totalMarketCapData[0].timestamp,
-                total_market_cap: totalMarketCapData[0].total_market_cap
-            } : null,
-            lastRecord: totalMarketCapData[totalMarketCapData.length - 1] ? {
-                timestamp: totalMarketCapData[totalMarketCapData.length - 1].timestamp,
-                total_market_cap: totalMarketCapData[totalMarketCapData.length - 1].total_market_cap
-            } : null
+        logger.info('Query completed:', {
+            sql: totalMarketCapData.length > 0 ? totalMarketCapData[0].sequelize.log : 'No results',
+            resultCount: totalMarketCapData.length
         });
 
         res.json({
@@ -199,7 +234,10 @@ async function getTotalMarketCap(req, res) {
             data: totalMarketCapData
         });
     } catch (error) {
-        logger.error('Error fetching total market cap:', error);
+        logger.error('Error fetching total market cap:', {
+            error: error.message,
+            stack: error.stack
+        });
         res.status(500).json({
             success: false,
             error: 'Failed to fetch total market cap data'
