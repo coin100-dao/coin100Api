@@ -5,6 +5,7 @@ import { initializeDatabase } from './src/models/index.js';
 import { initializeScheduler } from './src/utils/scheduler.js';
 import { verifyApiKey } from './src/utils/verifyApiKey.js';
 import coinRoutes from './src/routes/coinRoutes.js';
+import coin100Routes from './src/routes/coin100Routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -70,7 +71,8 @@ app.get('/', (req, res) => {
 app.use('/api', verifyApiKey);
 
 // Routes
-app.use('/api/coins', coinRoutes);
+app.use('/api/coins', verifyApiKey, coinRoutes);
+app.use('/api/coin100', verifyApiKey, coin100Routes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
