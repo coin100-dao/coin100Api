@@ -1,10 +1,11 @@
+// Import necessary modules with import assertion for JSON
 import Web3 from 'web3';
 import dotenv from 'dotenv';
-import contractABI from '../config/coin100-contract-abi.json';
+import contractABI from '../config/coin100-contract-abi.json' assert { type: 'json' };
 
 dotenv.config();
 
-const CONTRACT_ADDRESS = '0x6402778921629ffbfeb3b683a4da099f74a2d4c5' // process.env.CONTRACT_ADDRESS;
+const CONTRACT_ADDRESS = '0x6402778921629ffbfeb3b683a4da099f74a2d4c5'; // Consider using process.env.CONTRACT_ADDRESS for flexibility
 const web3 = new Web3(process.env.WEB3_PROVIDER_URL || 'https://polygon-mainnet.infura.io');
 const contract = new web3.eth.Contract(contractABI, CONTRACT_ADDRESS);
 
