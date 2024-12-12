@@ -6,14 +6,40 @@ import { initializeScheduler } from './src/utils/scheduler.js';
 import { verifyApiKey } from './src/utils/verifyApiKey.js';
 import coinRoutes from './src/routes/coinRoutes.js';
 import coin100Routes from './src/routes/coin100Routes.js';
+import cors from 'cors';
 
 // Load environment variables
 dotenv.config();
 
-
 const app = express();
 
-// CORS middleware
+// CORS configuration
+const allowedOrigins = ['https://coin100.link'];
+
+if (process.env.NODE_ENV === 'development') {
+    allowedOrigins.push('http://localhost:5173');
+}
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            logger.warn('CORS blocked for origin:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true, // Allow credentials
+    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+    allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key',
+};
+
+// Use the cors middleware
+app.use(cors(corsOptions));
+
+// Optional: Log incoming requests
 app.use((req, res, next) => {
     logger.info('Incoming request:', {
         origin: req.headers.origin,
@@ -21,38 +47,6 @@ app.use((req, res, next) => {
         method: req.method,
         query: req.query
     });
-
-    const allowedOrigins = ['https://coin100.link'];
-    
-    // Add localhost to allowed origins in development
-    if (process.env.NODE_ENV === 'development') {
-        allowedOrigins.push('http://localhost:5173');
-    }
-
-    const origin = req.headers.origin;
-    
-    // Allow any of the permitted origins
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-        logger.info('CORS allowed for origin:', origin);
-    } else {
-        logger.warn('CORS blocked for origin:', origin);
-    }
-
-    // Required for credentials
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    
-    // Allow all necessary headers
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key');
-    
-    // Allow all necessary methods
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-
-    // Handle preflight requests
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
     next();
 });
 
@@ -71,8 +65,8 @@ app.get('/', (req, res) => {
 app.use('/api', verifyApiKey);
 
 // Routes
-app.use('/api/coins', verifyApiKey, coinRoutes);
-app.use('/api/coin100', verifyApiKey, coin100Routes);
+app.use('/api/coins', coinRoutes);
+app.use('/api/coin100', coin100Routes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
