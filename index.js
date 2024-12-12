@@ -48,11 +48,11 @@ app.use((req, res, next) => {
     // Allow all necessary methods
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
 
-    // Handle preflight
+    // Handle preflight requests
     if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+        res.status(200).end();
+        return;
     }
-
     next();
 });
 
