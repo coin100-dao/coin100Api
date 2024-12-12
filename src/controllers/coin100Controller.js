@@ -1,16 +1,7 @@
 // Import necessary modules with import assertion for JSON
 import Web3 from 'web3';
 import dotenv from 'dotenv';
-import { readFile } from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const abiPath = path.join(__dirname, '../config/coin100-contract-abi.json');
-
-const contractABI = JSON.parse(await readFile(abiPath, 'utf-8'));
+import contractABI from '../config/coin100-contract-abi.json' assert { type: 'json' };
 
 dotenv.config();
 
