@@ -1,31 +1,12 @@
 // Import necessary modules with import assertion for JSON
 import Web3 from 'web3';
 import dotenv from 'dotenv';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import contractABI from '../config/coin100-contract-abi.json' assert { type: 'json' };
 
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const contractABIPath = path.join(__dirname, '../config/coin100-contract-abi.json');
-
-const getContractABI = async () => {
-    try {
-        const data = await fs.readFile(contractABIPath, 'utf-8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error reading contract ABI:', error);
-        throw error;
-    }
-};
-
-
 const CONTRACT_ADDRESS = '0x6402778921629ffbfeb3b683a4da099f74a2d4c5'; // Consider using process.env.CONTRACT_ADDRESS for flexibility
 const web3 = new Web3(process.env.WEB3_PROVIDER_URL || 'https://polygon-mainnet.infura.io');
-const contractABI = await getContractABI();
 const contract = new web3.eth.Contract(contractABI, CONTRACT_ADDRESS);
 
 /**

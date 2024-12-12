@@ -36,7 +36,7 @@ const corsOptions = {
     allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key',
 };
 
-// Use the cors middleware
+// Apply the CORS middleware **before** other middlewares
 app.use(cors(corsOptions));
 
 // Optional: Log incoming requests
