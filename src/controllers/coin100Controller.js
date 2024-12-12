@@ -1,7 +1,9 @@
 // Import necessary modules with import assertion for JSON
 import Web3 from 'web3';
 import dotenv from 'dotenv';
-import contractABI from '../config/coin100-contract-abi.json' assert { type: 'json' };
+const contractABI = await import('../config/coin100-contract-abi.json', {
+    assert: { type: 'json' }
+});
 
 dotenv.config();
 
