@@ -21,23 +21,17 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const corsOptions = {
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            logger.warn('CORS blocked for origin:', origin);
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true, // Allow credentials
-    methods: 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
-    allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key',
+    origin: ['https://coin100.link', 'http://localhost:5173'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'x-api-key'],
+    credentials: true,
 };
 
 // Apply the CORS middleware **before** other middlewares
 app.use(cors(corsOptions));
+
+// Explicitly handle OPTIONS requests for CORS
+app.options('*', cors(corsOptions));
 
 // Optional: Log incoming requests
 app.use((req, res, next) => {
@@ -64,7 +58,7 @@ app.get('/', (req, res) => {
 // Apply API key verification to all /api routes
 app.use('/api', verifyApiKey);
 
-// Routes
+// API Routes
 app.use('/api/coins', coinRoutes);
 app.use('/api/coin100', coin100Routes);
 

@@ -2,6 +2,11 @@
 import logger from './logger.js';
 
 function verifyApiKey(req, res, next) {
+    if (req.method === 'OPTIONS') {
+        logger.apiRequest(req, 200, 'Preflight OPTIONS request bypassed');
+        return next();
+    }
+
     const apiKey = req.headers['x-api-key'];
     
     if (!apiKey) {
