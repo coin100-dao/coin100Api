@@ -2,6 +2,7 @@
 import logger from './logger.js';
 
 function verifyApiKey(req, res, next) {
+    // Bypass API key verification for preflight OPTIONS requests
     if (req.method === 'OPTIONS') {
         logger.apiRequest(req, 200, 'Preflight OPTIONS request bypassed');
         return next();
