@@ -9,11 +9,13 @@
    4.2. [Global Rebase Mechanism](#global-rebase-mechanism)  
    4.3. [Manual Upkeep in Initial Phase](#manual-upkeep-in-initial-phase)  
    4.4. [No Complex Public Sale Mechanics](#no-complex-public-sale-mechanics)
+   4.5. [Liquidity Provider Incentives](#liquidity-provider-incentives)
 5. [Tokenomics](#tokenomics)
    5.1. [Initial Parameters](#initial-parameters)  
    5.2. [Distribution (Owner Allocation & ICO)](#distribution-owner-allocation--ico)  
    5.3. [Rebase Formula ("Genius" Formula)](#rebase-formula-genius-formula)  
    5.4. [Market Dynamics and Price Stability](#market-dynamics-and-price-stability)
+   5.5. [Liquidity Provider Rewards](#liquidity-provider-rewards)
 6. [Technical Architecture](#technical-architecture)
    6.1. [Polygon Network](#polygon-network)  
    6.2. [C100 Token Contract](#c100-token-contract)  
@@ -34,6 +36,7 @@
     10.2. [During the ICO](#during-the-ico)  
     10.3. [Post-ICO Finalization and Burning Unsold Tokens](#post-ico-finalization-and-burning-unsold-tokens)  
     10.4. [Maintaining the Index Post-ICO](#maintaining-the-index-post-ico)
+    10.5. [Liquidity Provider Participation During ICO](#liquidity-provider-participation-during-ico)
 11. [FAQ (100 Questions & Answers)](#faq-100-questions--answers)
 12. [Contact Information](#contact-information)
 13. [Conclusion](#conclusion)
@@ -64,22 +67,24 @@ On each upkeep call, the total supply adjusts to reflect the updated top 100 cry
 Early on, the owner will manually call the rebase function with updated market cap figures. Over time, this process can transition to an automated system (e.g., via a governance proposal and oracle integration).
 
 ### No Complex Public Sale Mechanics
-At launch, the entire supply is minted to the owner. The owner retains 3% for initial upkeep and distributes 97% through an ICO or directly to a DEX liquidity pool, allowing free market discovery of the token price.
+C100 emphasizes simplicity in its public sale to ensure broad accessibility and ease of participation for all investors.
+
+### Liquidity Provider Incentives
+To ensure a healthy trading environment and stable liquidity, C100 introduces incentives for liquidity providers. Liquidity providers are rewarded with a 10% share of the total transaction fees generated during the public sale. This mechanism encourages liquidity provision, reducing price volatility and enhancing the trading experience for all users.
 
 ## Tokenomics
 
 ### Initial Parameters
-- **Initial Supply = Initial Market Cap (M₀)**: If M₀ is the initial top 100 crypto market cap in USD, we set total supply = M₀ C100.
-- **Reference Price (~$1/C100)**: By pairing C100 with a stable asset (e.g., USDC) in a liquidity pool, initial market participants can anchor the price around $1.
+- **Total Supply:** Equal to the initial top 100 crypto market cap (denominated in C100 units).
+- **Initial Price:** Approximately $1 per C100 token, assuming pairing with a stable asset in a DEX.
 
 ### Distribution (Owner Allocation & ICO)
-- Owner receives 100% at deployment.
-- Owner keeps 3% (developer allocation).
-- Owner allocates remaining 97% for ICO or liquidity provisioning.
+- **Owner Allocation:** 3% of total supply is retained by the owner for development, liquidity provision, and other strategic purposes.
+- **ICO Allocation:** 97% of total supply is allocated for the Initial Coin Offering (ICO), enabling widespread distribution and community participation.
 
 ### Rebase Formula ("Genius" Formula)
 **ratio = M_new / M_old**  
-- New Supply = Old Supply * ratio  
+- **New Supply = Old Supply * ratio**  
 - Every holder’s balance is multiplied by the same ratio.
 
 This ensures fair and transparent tracking of the market cap changes.
@@ -87,16 +92,19 @@ This ensures fair and transparent tracking of the market cap changes.
 ### Market Dynamics and Price Stability
 If the market cap doubles, all balances double, maintaining the token’s value reference. As the community matures and markets become more efficient, the token price should remain stable around its baseline in response to these proportional adjustments.
 
+### Liquidity Provider Rewards
+A dedicated 10% of the total transaction fees generated during the public sale is allocated as rewards to liquidity providers. This incentivizes users to provide liquidity, ensuring deep liquidity pools, reducing slippage, and fostering a robust trading environment. Rewards are distributed proportionally based on the amount of liquidity each provider contributes.
+
 ## Technical Architecture
 
 ### Polygon Network
-Deployed on Polygon for low gas fees and high throughput.
+Deployed on Polygon for low gas fees and high throughput, ensuring efficient and cost-effective transactions for users.
 
 ### C100 Token Contract
 Implements ERC20 standards, rebase logic, ownership control, pause/unpause functionalities, and integration points for future governance.
 
 ### ICO (Public Sale) Contract
-Handles the initial distribution of 97% tokens. Investors purchase C100 with MATIC or ERC20 tokens (e.g., USDC) during the ICO period. Unsold tokens are burned at the end, ensuring only the circulating supply reflects real participants.
+Handles the initial distribution of 97% tokens. Investors purchase C100 with POL or ERC20 tokens (e.g., USDC) during the ICO period. Unsold tokens are burned at the end, ensuring only the circulating supply reflects real participants. Additionally, during the ICO, a 10% reward is allocated to liquidity providers from the transaction fees to incentivize liquidity provisioning.
 
 ### Scaling and GonsPerFragment
 Balances are tracked in a large integer unit called “gons.” The global `gonsPerFragment` variable determines how these translate into user balances. On rebase, adjusting `gonsPerFragment` updates everyone’s balance proportionally in O(1) complexity.
@@ -114,17 +122,18 @@ Over time, the community will shape the project’s future. They can propose:
 - Adjusting parameters (fees, rebase frequency)
 - Allocating treasury funds for development, marketing, or liquidity
 - Introducing new features or improvements
+- Managing liquidity provider reward percentages
 
 ## Security
 
 ### Ownership Controls
-The `onlyOwner` and `onlyAdmin` modifiers ensure that only authorized parties (owner or governor) can make critical changes.
+The `onlyAdmin` modifiers ensure that only authorized parties can make critical changes, safeguarding the contract against unauthorized modifications.
 
 ### Pause/Unpause Mechanisms
 The contract can be paused in emergencies, preventing transfers and safeguarding against exploits during uncertain times.
 
 ### Reentrancy Guards
-NonReentrant modifiers protect against complex reentrancy attacks, ensuring safe execution of functions like buy tokens or rebase.
+NonReentrant modifiers protect against complex reentrancy attacks, ensuring safe execution of functions like buying tokens or rebasing.
 
 ### Audits and Best Practices
 Smart contract auditing and community code reviews will enhance trust and security. Following industry standards, best practices, and thorough testing before mainnet deployment is crucial.
@@ -132,31 +141,39 @@ Smart contract auditing and community code reviews will enhance trust and securi
 ## Roadmap
 - **Phase 1:** Token and ICO launch, manual upkeep.
 - **Phase 2:** Introduce governance, set governor contract.
-- **Phase 3:** Possibly add oracles for automated updates.
+- **Phase 3:** Integrate oracles for automated updates.
 - **Phase 4:** Community-driven proposals for enhancements, treasury usage, fee adjustments.
-- **Phase 5:** Ongoing refinement, scaling, and ecosystem expansion.
+- **Phase 5:** Implement liquidity provider reward mechanisms, scaling, and ecosystem expansion.
+- **Phase 6:** Ongoing refinement, security audits, and feature additions based on community feedback.
 
 ## ICO Plan (Simplicity-Focused)
 
 ### ICO Parameters
-- Duration: e.g., 12 months.
-- Accepted Currencies: MATIC, optionally USDC.
-- Rate: Fixed C100 per MATIC/USDC.
+- **Duration:** 12 months.
+- **Accepted Currencies:** POL, optionally USDC.
+- **Rate:** Fixed C100 per POL/USDC.
+- **Liquidity Provider Reward:** 10% of transaction fees allocated to liquidity providers during the ICO.
 
 ### During the ICO
-- Investors buy C100 directly from the crowdsale contract.
-- Owner periodically calls rebase to keep C100 supply aligned with the top 100 market cap.
-- Unsold tokens remain in the ICO contract, also getting rebased.
+- **Purchases:** Investors buy C100 directly from the crowdsale contract using POL or approved ERC20 tokens.
+- **Rebase Operations:** Owner periodically calls rebase to keep C100 supply aligned with the top 100 market cap.
+- **Liquidity Provision:** Liquidity providers contribute to the C100-POL liquidity pool and earn a 10% reward from transaction fees.
 
 ### Post-ICO Finalization and Burning Unsold Tokens
 At the end of the ICO:
-- No more purchases allowed.
-- Any unsold tokens are burned, ensuring the supply reflects only actively held tokens plus the owner’s 3%.
+- **No More Purchases:** ICO phase concludes, preventing further token sales.
+- **Burn Unsold Tokens:** Any unsold tokens are burned, ensuring the supply reflects only actively held tokens.
 
 ### Maintaining the Index Post-ICO
 After the ICO:
-- Continue daily/periodic rebases.
-- Future governance can introduce advanced features (e.g., treasury, automated oracles).
+- **Continuous Rebasing:** Continue daily/periodic rebases to adjust supply based on market cap changes.
+- **Automated Upkeep:** Transition to automated rebase operations using oracles and governance decisions.
+- **Governance Enhancements:** Introduce advanced features such as treasury management, automated liquidity rewards, and fee adjustments through community proposals.
+
+### Liquidity Provider Participation During ICO
+- **Incentives:** During the ICO, liquidity providers are rewarded with 10% of the total transaction fees generated.
+- **Participation:** Anyone can become a liquidity provider by adding C100 and POL (MATIC) to supported DEXs.
+- **Rewards Distribution:** Rewards are distributed proportionally based on the liquidity provided, ensuring fair compensation for contributions.
 
 ---
 
@@ -172,7 +189,7 @@ After the ICO:
    **A:** Yes, it follows the ERC20 standard with additional rebasing logic.
 
 4. **Q:** On which network is C100 deployed?  
-   **A:** Polygon (Matic) network.
+   **A:** Polygon (POL) network.
 
 5. **Q:** Why Polygon?  
    **A:** Low fees, fast transactions, and high scalability.
@@ -207,9 +224,6 @@ After the ICO:
 15. **Q:** Does the owner get special treatment in rebases?  
     **A:** No, after initial allocation, the owner’s tokens also rebase equally.
 
-16. **Q:** What is the owner’s initial allocation?  
-    **A:** 3% of total supply for their initial upkeep efforts.
-
 17. **Q:** What happens to the remaining 97% at launch?  
     **A:** It’s used for ICO or directly to provide liquidity and let the market buy freely.
 
@@ -233,9 +247,6 @@ After the ICO:
 
 24. **Q:** How do I store C100?  
     **A:** In any Polygon-compatible ERC20 wallet.
-
-25. **Q:** Is there a vesting schedule?  
-    **A:** None by default. The owner’s 3% is fully unlocked at launch.
 
 26. **Q:** How do I track the top 100 market cap changes?  
     **A:** Initially, trust the owner’s manual updates. Later, an oracle might provide on-chain data.
@@ -409,7 +420,7 @@ After the ICO:
     **A:** No, just hold it in a Polygon-compatible wallet.
 
 83. **Q:** Is there a minimum gas token needed?  
-    **A:** Yes, MATIC for gas fees on Polygon.
+    **A:** Yes, POL for gas fees on Polygon.
 
 84. **Q:** Can I bridge C100 to other chains?  
     **A:** Possibly in the future if bridges support it.
@@ -462,6 +473,57 @@ After the ICO:
 100. **Q:** Why trust C100 over other tokens?  
      **A:** C100 provides a broad, fair, and transparent index exposure with a clear path to decentralization and community governance.
 
+101. **Q:** How are liquidity providers rewarded?  
+     **A:** Liquidity providers receive a 10% reward from the total transaction fees generated in the public sale. This incentivizes providing liquidity and ensures a healthy trading environment.
+
+102. **Q:** What is the 10% reward for liquidity providers?  
+     **A:** A portion of the fees collected during token sales is allocated as a 10% reward to liquidity providers. This reward is distributed proportionally based on the amount of liquidity each provider contributes.
+
+103. **Q:** How is the polRate updated during rebases?  
+     **A:** During each rebase, if a new polRate is provided, it is automatically updated in the public sale contract. This ensures that the rate reflects the latest market conditions.
+
+104. **Q:** Can the polRate be updated without a rebase?  
+     **A:** No, the polRate is tied to the rebase mechanism and is updated alongside market cap adjustments.
+
+105. **Q:** How are liquidity providers rewarded during the ICO?  
+     **A:** Liquidity providers receive a 10% reward from the total transaction fees generated during the ICO. This reward incentivizes providing liquidity, ensuring a stable and liquid trading environment.
+
+106. **Q:** Can I become a liquidity provider for C100?  
+     **A:** Yes, anyone can provide liquidity by adding C100 and POL (MATIC) to a supported DEX. In return, you earn a share of the 10% reward based on your contribution.
+
+107. **Q:** How does governance update the polRate in the public sale contract?  
+     **A:** During each rebase, if a new polRate is proposed and approved via governance voting, the COIN100 contract updates the polRate in the public sale contract accordingly. This ensures that the rate remains aligned with current market conditions.
+
+108. **Q:** Can governance adjust the liquidity provider reward percentage?  
+     **A:** Yes, governance can propose and vote on changes to the liquidity provider reward percentage, allowing the community to adjust incentives as needed.
+
+109. **Q:** How secure are the liquidity rewards?  
+     **A:** Liquidity rewards are managed through smart contracts with rigorous security audits to ensure that funds are distributed fairly and without vulnerabilities.
+
+110. **Q:** What measures are in place to prevent exploitation of the rebase mechanism?  
+     **A:** The rebase mechanism is governed by decentralized governance and audited smart contracts, minimizing the risk of exploitation. Additionally, any changes to the rebase logic require community approval.
+
+111. **Q:** Where are the treasury funds stored?  
+     **A:** Treasury funds are held in a secure, multi-signature wallet controlled by the governance contract to ensure transparency and security.
+
+112. **Q:** Can treasury funds be used for liquidity provider rewards?  
+     **A:** Yes, governance can allocate treasury funds to support liquidity provider rewards or other community incentives as needed.
+
+113. **Q:** How do liquidity provider rewards impact the market?  
+     **A:** Liquidity provider rewards encourage more liquidity, reducing price volatility and improving the trading experience for all users.
+
+114. **Q:** Are there any special trading incentives for early adopters?  
+     **A:** Yes, early liquidity providers are eligible for a 10% reward from transaction fees, incentivizing them to support the token's liquidity from the outset.
+
+115. **Q:** How can the community participate in liquidity provisioning?  
+     **A:** Community members can provide liquidity by adding C100 and POL (MATIC) to supported DEXs, thereby earning a portion of the 10% liquidity provider rewards.
+
+116. **Q:** Are there community-led initiatives for liquidity?  
+     **A:** Yes, community proposals can include initiatives to enhance liquidity, such as incentive programs or partnerships with liquidity pools.
+
+117. **Q:** How does community governance influence liquidity rewards?  
+     **A:** Governance can propose and vote on the allocation and distribution of liquidity rewards, ensuring that incentives align with the community’s goals and market conditions.
+
 ---
 
 ## Contact Information
@@ -472,10 +534,10 @@ For further inquiries, support, or to engage with the COIN100 team, please reach
 - **Discord:** [Join Our Discord](https://discord.com/channels/1312498183485784236/1312498184500674693)
 - **Reddit:** [r/Coin100](https://www.reddit.com/r/Coin100)
 - **X:** [@Coin100token](https://x.com/Coin100token)
-- **coin100:** 0x6402778921629ffbfeb3b683a4da099f74a2d4c5
-- **publicSale:** 0xc79d86e03eda12720ba2f640d908ff9525227dd6
+- **coin100:** `0x6402778921629ffbfeb3b683a4da099f74a2d4c5`
+- **publicSale:** `0xc79d86e03eda12720ba2f640d908ff9525227dd6`
 
 ---
 
 ## Conclusion
-COIN100 (C100) provides a seamless, fair, and transparent way to invest in the top 100 cryptocurrencies. Through a global rebase mechanism, manual-to-automated governance transition, and robust security, it aims to become a trusted and stable representation of the crypto market’s collective growth. Join the community and help shape the future of decentralized index investing.
+COIN100 (C100) provides a seamless, fair, and transparent way to invest in the top 100 cryptocurrencies. Through a global rebase mechanism, manual-to-automated governance transition, liquidity provider incentives, and robust security, it aims to become a trusted and stable representation of the crypto market’s collective growth. Join the community, contribute to liquidity provisioning, and help shape the future of decentralized index investing.
