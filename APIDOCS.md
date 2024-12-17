@@ -229,7 +229,7 @@ Executes a rebase operation on the COIN100 contract. Requires admin wallet autho
 {
   "success": true,
   "data": {
-    "to": "0x6402778921629ffbfeb3b683a4da099f74a2d4c5",
+    "to": "0x315caf51ae1e1fa93662f3f83e332dd0e1dab70e",
     "from": "0x...",
     "data": "0x...",
     "gasLimit": "0x493e0",
@@ -263,7 +263,7 @@ Retrieves current metrics from the COIN100 contract including total supply and l
     "lastMarketCap": "1000000000",
     "gonsPerFragment": "1000000000000000000",
     "network": "Polygon Mainnet",
-    "contractAddress": "0x6402778921629ffbfeb3b683a4da099f74a2d4c5"
+    "contractAddress": "0x315caf51ae1e1fa93662f3f83e332dd0e1dab70e"
   }
 }
 ```
