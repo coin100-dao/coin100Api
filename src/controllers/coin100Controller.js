@@ -9,7 +9,7 @@ import logger from '../utils/logger.js'; // Ensure logger is correctly set up
 dotenv.config();
 
 // Environment Variables
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS || '0x315caf51ae1e1fa93662f3f83e332dd0e1dab70e';
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const WEB3_PROVIDER_URL = process.env.WEB3_PROVIDER_URL || 'https://polygon-mainnet.infura.io';
 
 // Initialize Web3 instance
