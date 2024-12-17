@@ -250,6 +250,10 @@
         "type": "event"
     },
     {
+        "stateMutability": "payable",
+        "type": "fallback"
+    },
+    {
         "inputs": [],
         "name": "BURN_ADDRESS",
         "outputs": [
@@ -260,6 +264,19 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "burnFromTreasury",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
@@ -401,6 +418,19 @@
     {
         "inputs": [],
         "name": "polRate",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "polRateView",
         "outputs": [
             {
                 "internalType": "uint256",

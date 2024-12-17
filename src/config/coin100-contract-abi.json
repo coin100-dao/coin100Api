@@ -5,6 +5,11 @@
                 "internalType": "uint256",
                 "name": "initialMarketCap",
                 "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "initialPolRate",
+                "type": "uint256"
             }
         ],
         "stateMutability": "nonpayable",
@@ -62,6 +67,44 @@
         "inputs": [
             {
                 "indexed": false,
+                "internalType": "address",
+                "name": "oldPool",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "newPool",
+                "type": "address"
+            }
+        ],
+        "name": "C100POLPoolSet",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "oldPool",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "newPool",
+                "type": "address"
+            }
+        ],
+        "name": "C100USDCPoolSet",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
                 "internalType": "bool",
                 "name": "transfersWithFee",
                 "type": "bool"
@@ -101,6 +144,58 @@
             {
                 "indexed": true,
                 "internalType": "address",
+                "name": "pool",
+                "type": "address"
+            }
+        ],
+        "name": "LiquidityPoolAdded",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "pool",
+                "type": "address"
+            }
+        ],
+        "name": "LiquidityPoolRemoved",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "newPercentage",
+                "type": "uint256"
+            }
+        ],
+        "name": "LpRewardPercentageUpdated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "newMaxPercentage",
+                "type": "uint256"
+            }
+        ],
+        "name": "MaxLpRewardPercentageUpdated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
                 "name": "previousOwner",
                 "type": "address"
             },
@@ -119,12 +214,69 @@
         "inputs": [
             {
                 "indexed": false,
+                "internalType": "uint256",
+                "name": "oldRate",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "newRate",
+                "type": "uint256"
+            }
+        ],
+        "name": "POLRateUpdated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
                 "internalType": "address",
                 "name": "account",
                 "type": "address"
             }
         ],
         "name": "Paused",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "oldRate",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "newRate",
+                "type": "uint256"
+            }
+        ],
+        "name": "PolInUSDCRateUpdated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "oldSaleContract",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "newSaleContract",
+                "type": "address"
+            }
+        ],
+        "name": "PublicSaleContractSet",
         "type": "event"
     },
     {
@@ -223,6 +375,19 @@
         "inputs": [
             {
                 "internalType": "address",
+                "name": "pool",
+                "type": "address"
+            }
+        ],
+        "name": "addLiquidityPool",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
                 "name": "owner_",
                 "type": "address"
             },
@@ -301,6 +466,32 @@
     },
     {
         "inputs": [],
+        "name": "c100POLPool",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "c100USDCPool",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
         "name": "decimals",
         "outputs": [
             {
@@ -375,7 +566,84 @@
     },
     {
         "inputs": [],
+        "name": "lastCalculatedPolRate",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
         "name": "lastMarketCap",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "liquidityPoolList",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "liquidityPools",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "lpRewardPercentage",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "maxLpRewardPercentage",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -446,6 +714,32 @@
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "polInUSDCRate",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "publicSaleContract",
+        "outputs": [
+            {
+                "internalType": "contract IC100PublicSale",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "internalType": "uint256",
@@ -485,8 +779,47 @@
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "pool",
+                "type": "address"
+            }
+        ],
+        "name": "removeLiquidityPool",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "pool",
+                "type": "address"
+            }
+        ],
+        "name": "setC100POLPool",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "pool",
+                "type": "address"
+            }
+        ],
+        "name": "setC100USDCPool",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -500,6 +833,58 @@
             }
         ],
         "name": "setGovernorContract",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_lpRewardPercentage",
+                "type": "uint256"
+            }
+        ],
+        "name": "setLpRewardPercentage",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_maxLpRewardPercentage",
+                "type": "uint256"
+            }
+        ],
+        "name": "setMaxLpRewardPercentage",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "newRate",
+                "type": "uint256"
+            }
+        ],
+        "name": "setPolInUSDCRate",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_publicSaleContract",
+                "type": "address"
+            }
+        ],
+        "name": "setPublicSaleContract",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
