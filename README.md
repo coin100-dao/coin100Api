@@ -23,7 +23,7 @@ Before starting, ensure you have the following installed:
 
 1. Clone the repository:
 ```bash
-git clone [your-repository-url]
+git clone [https://github.com/coin100-dao/coin100Api]
 cd coin100Api
 ```
 
