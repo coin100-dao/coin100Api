@@ -2,66 +2,67 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import Sequelize from 'sequelize';
+import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import logger from '../utils/logger.js';
 
-// Load environment variables from .env
+// Load environment variables
 dotenv.config();
 
+// Define __filename and __dirname before using them
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const basename = path.basename(__filename);
 
-// Determine host based on PSQL_HOST
-const isRemote = process.env.PSQL_HOST === 'remote';
-const host = isRemote ? process.env.DB_HOST_REMOTE : process.env.DB_HOST_LOCAL;
+// Determine the environment
+const env = process.env.NODE_ENV || 'development';
+
+// Resolve the Sequelize configuration
+const configPath = path.resolve(__dirname, '../../sequelize.config.js');
+const configModule = await import(`file://${configPath}`);
+const config = configModule.default;
+
+// Extract the configuration for the current environment
+const dbConfig = config[env];
 
 // Initialize Sequelize
-const sequelize = new Sequelize(
-    process.env.DB_NAME,
-    process.env.DB_USER,
-    process.env.DB_PASSWORD,
-    {
-        host,
-        port: process.env.DB_PORT || 5432,
-        dialect: 'postgres',
-        dialectOptions: process.env.DB_SSL === 'true' ? { ssl: { require: true, rejectUnauthorized: false } } : {},
-        logging: process.env.DB_LOGGING === 'true' ? logger.info : false,
-        pool: {
-            max: 5,
-            min: 0,
-            acquire: 30000,
-            idle: 10000
-        }
-    }
-);
+const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
+  host: dbConfig.host,
+  port: dbConfig.port,
+  dialect: dbConfig.dialect,
+  dialectOptions: dbConfig.dialectOptions,
+  logging: dbConfig.logging,
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  }
+});
 
+// Initialize db object to hold models
 const db = {};
 
-// Dynamically import all model files
-const files = fs.readdirSync(__dirname)
-  .filter(file => {
-    return (
-      file.indexOf('.') !== 0 &&
-      file !== basename &&
-      file.slice(-3) === '.js' &&
-      file.indexOf('.test.js') === -1
-    );
-  });
+// Read all model files and import them
+const files = fs.readdirSync(__dirname).filter(file => {
+  return (
+    file.indexOf('.') !== 0 &&
+    file !== path.basename(__filename) &&
+    file.slice(-3) === '.js' &&
+    file.indexOf('.test.js') === -1
+  );
+});
 
 for (const file of files) {
-  const modulePath = path.join(__dirname, file);
-  const moduleUrl = `file://${modulePath}`;
-  const module = await import(moduleUrl);
-  const model = module.default;
+  const modelPath = path.join(__dirname, file);
+  const modelModule = await import(`file://${modelPath}`);
+  const model = modelModule.default;
   if (model && typeof model === 'function') {
     const instance = model(sequelize, Sequelize.DataTypes);
     db[instance.name] = instance;
   }
 }
 
-// Associate models if associations exist
+// Handle model associations
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
@@ -69,24 +70,26 @@ Object.keys(db).forEach(modelName => {
 });
 
 // Function to initialize the database
-async function initializeDatabase() {
+const initializeDatabase = async () => {
   try {
     await sequelize.authenticate();
     logger.info('Database connection has been established successfully.');
 
-    // Sync all models with the database
+    // Sync models with the database
     await sequelize.sync();
     logger.info('All models were synchronized successfully.');
 
     return true;
   } catch (error) {
-    logger.error('Unable to connect to the database:', error);
+    logger.error('Database initialization failed:', { error: error.message, stack: error.stack });
     throw error;
   }
-}
+};
 
+// Add Sequelize instance and library to db object
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+// Export the db object and initializeDatabase function
 export { initializeDatabase };
 export default db;
