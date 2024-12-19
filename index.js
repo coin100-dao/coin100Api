@@ -1,9 +1,10 @@
+// app.js
 import express from 'express';
 import dotenv from 'dotenv';
 import logger from './src/utils/logger.js';
 import { initializeDatabase } from './src/models/index.js';
 import { initializeScheduler } from './src/utils/scheduler.js';
-import { verifyApiKey } from './src/utils/verifyApiKey.js';
+// import { verifyApiKey } from './src/utils/verifyApiKey.js';
 import coinRoutes from './src/routes/coinRoutes.js';
 import coin100Routes from './src/routes/coin100Routes.js';
 import cors from 'cors';
@@ -65,7 +66,7 @@ app.get('/', (req, res) => {
 });
 
 // Apply API key verification to all /api routes
-app.use('/api', verifyApiKey);
+// app.use('/api', verifyApiKey);
 
 // API Routes
 app.use('/api/coins', coinRoutes);
