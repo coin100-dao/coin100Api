@@ -15,7 +15,7 @@
 5. [Tokenomics](#tokenomics)
    5.1. [Initial Parameters](#initial-parameters)  
    5.2. [Distribution (Owner Allocation & ICO)](#distribution-owner-allocation--ico)  
-   5.3. [Rebase Formula ("Genius" Formula)](#rebase-formula-genius-formula)  
+   5.3. [Rebase Formula](#rebase-formula-formula)  
    5.4. [Market Dynamics and Price Stability](#market-dynamics-and-price-stability)
    5.5. [Liquidity Provider Rewards](#liquidity-provider-rewards)
    5.6. [Fee-Based Treasury](#fee-based-treasury)
@@ -95,7 +95,7 @@ C100 emphasizes simplicity in its public sale to ensure broad accessibility and 
 - **Owner Allocation:** 3% of total supply is retained by the owner for development, liquidity provision, and other strategic purposes.
 - **ICO Allocation:** 90% of total supply is allocated for the Initial Coin Offering (ICO), enabling widespread distribution and community participation.
 
-### Rebase Formula ("Genius" Formula)
+### Rebase Formula
 **ratio = M_new / M_old**  
 - **New Supply = Old Supply * ratio**  
 - Every holder’s balance is multiplied by the same ratio.
